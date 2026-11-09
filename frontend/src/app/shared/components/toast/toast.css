@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.toast-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 14px 14px 16px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-left-width: 4px;
+  border-radius: var(--radius-card, 12px);
+  background: var(--color-surface-elevated, #ffffff);
+  color: var(--color-text, #1f2937);
+  box-shadow: var(--shadow-toast);
+  animation: ui-toast-in 200ms ease;
+}
+
+.toast-success {
+  border-left-color: var(--color-success, #15803d);
+}
+
+.toast-error {
+  border-left-color: var(--color-danger, #dc2626);
+}
+
+.toast-warning {
+  border-left-color: var(--color-warning, #b45309);
+}
+
+.toast-info {
+  border-left-color: var(--color-info, #2563eb);
+}
+
+.toast-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+.toast-success .toast-icon {
+  background: var(--color-success-soft, #ecfdf3);
+  color: var(--color-success, #15803d);
+}
+
+.toast-error .toast-icon {
+  background: var(--color-danger-soft, #fef2f2);
+  color: var(--color-danger, #dc2626);
+}
+
+.toast-warning .toast-icon {
+  background: var(--color-warning-soft, #fffbeb);
+  color: var(--color-warning, #b45309);
+}
+
+.toast-info .toast-icon {
+  background: var(--color-info-soft, #eff6ff);
+  color: var(--color-info, #2563eb);
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.toast-title {
+  margin: 0;
+  color: var(--color-text, #1f2937);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.toast-message {
+  margin: 3px 0 0;
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.toast-close {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin: -6px -6px -6px 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary, #64748b);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.toast-close:hover {
+  background: var(--color-hover, #f1f5f9);
+  color: var(--color-text, #1f2937);
+}

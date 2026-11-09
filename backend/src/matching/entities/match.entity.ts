@@ -9,6 +9,7 @@ import {
   JoinColumn,
   Unique,
   Check,
+  type Relation,
 } from 'typeorm';
 import { Item } from '../../items/entities/item.entity.js';
 import { MatchStatus } from '../enums/match-status.enum.js';
@@ -26,7 +27,7 @@ export class Match {
 
   @ManyToOne(() => Item, (item) => item.lostMatches, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'lost_item_id' })
-  lostItem: Item;
+  lostItem: Relation<Item>;
 
   @Index()
   @Column({ name: 'found_item_id', type: 'uuid' })
@@ -34,7 +35,7 @@ export class Match {
 
   @ManyToOne(() => Item, (item) => item.foundMatches, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'found_item_id' })
-  foundItem: Item;
+  foundItem: Relation<Item>;
 
   @Column({ name: 'text_score', type: 'decimal', precision: 5, scale: 4 })
   textScore: number;

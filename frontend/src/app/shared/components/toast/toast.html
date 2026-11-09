@@ -1,0 +1,30 @@
+<div
+  class="toast-card"
+  [class]="'toast-card toast-' + type"
+  [attr.role]="type === 'error' ? 'alert' : 'status'"
+  [attr.aria-live]="type === 'error' ? 'assertive' : 'polite'"
+>
+  <span class="toast-icon" aria-hidden="true">
+    <app-icon [name]="iconName" sizeClass="w-5 h-5" />
+  </span>
+
+  <div class="toast-content">
+    @if (title) {
+      <p class="toast-title">{{ title }}</p>
+    }
+    @if (message) {
+      <p class="toast-message">{{ message }}</p>
+    }
+  </div>
+
+  @if (dismissible) {
+    <button
+      type="button"
+      class="toast-close"
+      aria-label="Dismiss notification"
+      (click)="onDismiss()"
+    >
+      <app-icon name="x" sizeClass="w-4 h-4" />
+    </button>
+  }
+</div>

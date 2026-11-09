@@ -1,0 +1,119 @@
+<div class="public-layout">
+  <header class="site-header">
+    <div class="header-container">
+      <app-logo size="md" />
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a
+          routerLink="/"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Home
+        </a>
+        <a routerLink="/items" routerLinkActive="active">Browse Items</a>
+        <a routerLink="/about" routerLinkActive="active">About</a>
+      </nav>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          class="theme-toggle touch-target transition-colors duration-200"
+          (click)="toggleTheme()"
+          [attr.aria-label]="
+            'Switch to ' +
+            (themeService.theme() === 'light' ? 'dark' : 'light') +
+            ' mode'
+          "
+        >
+          @if (themeService.theme() === 'light') {
+            <app-icon name="moon" sizeClass="w-4 h-4 text-[var(--color-text)]" />
+          } @else {
+            <app-icon name="sun" sizeClass="w-4 h-4 text-brand-amber" />
+          }
+        </button>
+
+        <div class="desktop-auth-actions">
+          <a routerLink="/login" class="login-link">Login</a>
+          <a routerLink="/register" class="register-link">Get Started</a>
+        </div>
+
+        <button
+          type="button"
+          class="mobile-menu-toggle touch-target"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="public-mobile-nav"
+          aria-label="Toggle navigation menu"
+        >
+          <app-icon
+            [name]="mobileMenuOpen() ? 'x' : 'menu'"
+            sizeClass="w-5 h-5"
+          />
+        </button>
+      </div>
+    </div>
+
+    @if (mobileMenuOpen()) {
+      <div id="public-mobile-nav" class="mobile-nav-panel">
+        <nav class="mobile-nav-links" aria-label="Mobile navigation">
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileMenu()"
+          >
+            Home
+          </a>
+          <a
+            routerLink="/items"
+            routerLinkActive="active"
+            (click)="closeMobileMenu()"
+          >
+            Browse Items
+          </a>
+          <a
+            routerLink="/about"
+            routerLinkActive="active"
+            (click)="closeMobileMenu()"
+          >
+            About
+          </a>
+        </nav>
+
+        <div class="mobile-auth-actions">
+          <a
+            routerLink="/login"
+            class="mobile-login-link"
+            (click)="closeMobileMenu()"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/register"
+            class="mobile-register-link"
+            (click)="closeMobileMenu()"
+          >
+            Get Started
+          </a>
+        </div>
+      </div>
+    }
+  </header>
+
+  <main class="page-content">
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <app-logo size="sm" />
+
+      <p>
+        Reuniting people with their lost belongings through technology.
+      </p>
+
+      <span>&copy; {{ currentYear }} KhojNepal. All rights reserved.</span>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,18 @@
+
+<header class="page-header">
+  <div class="page-heading">
+    @if (eyebrow) {
+      <span class="page-eyebrow">{{ eyebrow }}</span>
+    }
+
+    <h1 class="page-title">{{ title }}</h1>
+
+    @if (description) {
+      <p class="page-description">{{ description }}</p>
+    }
+  </div>
+
+  <div class="page-actions">
+    <ng-content select="[page-actions]" />
+  </div>
+</header>

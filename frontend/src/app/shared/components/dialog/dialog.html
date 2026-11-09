@@ -1,0 +1,87 @@
+@if (open) {
+  <div
+    class="dialog-backdrop"
+    role="presentation"
+    (click)="onBackdropClick($event)"
+  >
+    <div
+      #dialogPanel
+      class="dialog-panel"
+      [class]="'dialog-panel dialog-' + size + ' dialog-variant-' + variant"
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+      [attr.aria-labelledby]="title ? titleId : null"
+      [attr.aria-describedby]="description ? descriptionId : null"
+    >
+      <div class="dialog-header">
+        <div class="dialog-heading-group">
+          @if (showIcon && resolvedIcon) {
+            <span class="dialog-icon-badge" aria-hidden="true">
+              <app-icon [name]="resolvedIcon" sizeClass="w-5 h-5" />
+            </span>
+          }
+
+          <div class="dialog-title-wrap">
+            @if (title) {
+              <h2 [id]="titleId" class="dialog-title">{{ title }}</h2>
+            }
+            @if (description) {
+              <p [id]="descriptionId" class="dialog-description">
+                {{ description }}
+              </p>
+            }
+          </div>
+        </div>
+
+        @if (showCloseButton) {
+          <button
+            type="button"
+            class="dialog-close-btn touch-target"
+            [disabled]="loading"
+            aria-label="Close dialog"
+            (click)="closeDialog()"
+          >
+            <app-icon name="x" sizeClass="w-5 h-5" />
+          </button>
+        }
+      </div>
+
+      <div class="dialog-body">
+        <ng-content />
+      </div>
+
+      @if (showFooter) {
+        <div class="dialog-footer">
+          <ng-content select="[dialog-footer]" />
+
+          @if (showCancel || showConfirm) {
+            <div class="dialog-default-actions">
+              @if (showCancel) {
+                <app-button
+                  variant="outline"
+                  size="md"
+                  [disabled]="loading"
+                  (click)="onCancel()"
+                >
+                  {{ cancelLabel }}
+                </app-button>
+              }
+
+              @if (showConfirm) {
+                <app-button
+                  [variant]="confirmButtonVariant"
+                  size="md"
+                  [loading]="loading"
+                  (click)="onConfirm()"
+                >
+                  {{ confirmLabel }}
+                </app-button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

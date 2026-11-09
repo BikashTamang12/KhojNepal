@@ -1,0 +1,47 @@
+<section
+  class="error-state surface-card"
+  [class.error-state-compact]="compact"
+  role="alert"
+  aria-live="assertive"
+>
+  <div class="error-state-icon" aria-hidden="true">
+    <app-icon [name]="icon" [sizeClass]="compact ? 'w-6 h-6' : 'w-8 h-8'" />
+  </div>
+
+  <div class="error-state-body">
+    @if (errorCode) {
+      <span class="error-code-pill">{{ errorCode }}</span>
+    }
+
+    <h3 class="error-state-title">{{ title }}</h3>
+    <p class="error-state-message">{{ message }}</p>
+  </div>
+
+  <div class="error-state-actions">
+    @if (showRetry) {
+      <app-button
+        variant="primary"
+        size="md"
+        [loading]="retrying"
+        (click)="onRetry()"
+      >
+        @if (!retrying) {
+          <app-icon name="refresh" sizeClass="w-4 h-4" />
+        }
+        <span>{{ retrying ? 'Retrying...' : retryLabel }}</span>
+      </app-button>
+    }
+
+    @if (secondaryLabel) {
+      <app-button
+        variant="outline"
+        size="md"
+        (click)="onSecondaryAction()"
+      >
+        {{ secondaryLabel }}
+      </app-button>
+    }
+
+    <ng-content select="[error-actions]" />
+  </div>
+</section>

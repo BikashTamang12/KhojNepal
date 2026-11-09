@@ -1,0 +1,35 @@
+
+<div class="input-field">
+  @if (label) {
+    <label class="input-label" [for]="id">
+      {{ label }}
+
+      @if (required) {
+        <span class="required-mark">*</span>
+      }
+    </label>
+  }
+
+  <input
+    class="form-input"
+    [id]="id"
+    [name]="name"
+    [type]="type"
+    [placeholder]="placeholder"
+    [value]="value"
+    [required]="required"
+    [disabled]="disabled"
+    [attr.aria-invalid]="error ? 'true' : null"
+    [attr.aria-describedby]="error ? id + '-error' : hint ? id + '-hint' : null"
+  />
+
+  @if (error) {
+    <p class="input-error" [id]="id + '-error'">
+      {{ error }}
+    </p>
+  } @else if (hint) {
+    <p class="input-hint" [id]="id + '-hint'">
+      {{ hint }}
+    </p>
+  }
+</div>

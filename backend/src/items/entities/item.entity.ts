@@ -8,11 +8,12 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  type Relation,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity.js';
 import { Category } from '../../categories/entities/category.entity.js';
 import { Location } from '../../locations/entities/location.entity.js';
-import { ItemImage } from './item-image.entity.js';
+import type { ItemImage } from './item-image.entity.js';
 import { ReportType } from '../enums/report-type.enum.js';
 import { ItemStatus } from '../enums/item-status.enum.js';
 import type { Match } from '../../matching/entities/match.entity.js';
@@ -32,7 +33,7 @@ export class Item {
 
   @ManyToOne(() => User, (user) => user.items, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @Index()
   @Column({ name: 'category_id', type: 'uuid' })
@@ -40,7 +41,7 @@ export class Item {
 
   @ManyToOne(() => Category, (category) => category.items, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'category_id' })
-  category: Category;
+  category: Relation<Category>;
 
   @Index()
   @Column({ name: 'location_id', type: 'uuid' })
@@ -48,7 +49,7 @@ export class Item {
 
   @ManyToOne(() => Location, (location) => location.items, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'location_id' })
-  location: Location;
+  location: Relation<Location>;
 
   @Column({ type: 'varchar', length: 200 })
   title: string;
@@ -89,17 +90,17 @@ export class Item {
   @Column({ name: 'contact_info', type: 'varchar', length: 150, nullable: true })
   contactInfo?: string;
 
-  @OneToMany(() => ItemImage, (img) => img.item)
-  images: ItemImage[];
+  @OneToMany('ItemImage', 'item')
+  images: Relation<ItemImage[]>;
 
   @OneToMany('Match', 'lostItem')
-  lostMatches: Match[];
+  lostMatches: Relation<Match[]>;
 
   @OneToMany('Match', 'foundItem')
-  foundMatches: Match[];
+  foundMatches: Relation<Match[]>;
 
   @OneToMany('Claim', 'item')
-  claims: Claim[];
+  claims: Relation<Claim[]>;
 
   @Index()
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

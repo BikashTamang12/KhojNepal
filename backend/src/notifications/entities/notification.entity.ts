@@ -6,6 +6,7 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
+  type Relation,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity.js';
 import { NotificationType } from '../enums/notification-type.enum.js';
@@ -21,7 +22,7 @@ export class Notification {
 
   @ManyToOne(() => User, (user) => user.notifications, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @Column({ type: 'varchar', length: 200 })
   title: string;
