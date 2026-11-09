@@ -1,0 +1,13 @@
+@if (toastService.toasts().length > 0) {
+  <div class="toast-stack" aria-label="Notifications">
+    @for (toast of toastService.toasts(); track toast.id) {
+      <app-toast
+        [type]="toast.type"
+        [title]="toast.title"
+        [message]="toast.message"
+        [dismissible]="toast.dismissible"
+        (dismissed)="dismiss(toast.id)"
+      />
+    }
+  </div>
+}

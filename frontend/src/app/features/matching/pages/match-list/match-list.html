@@ -1,1 +1,140 @@
-<p>match-list works!</p>
+<app-page-header
+  eyebrow="Intelligent Matching"
+  title="Smart Match Suggestions"
+  description="Potential connections ranked by text, visual image similarity, location proximity, and incident timing."
+>
+  <a
+    page-actions
+    routerLink="/items/my"
+    class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+  >
+    <app-icon name="package" sizeClass="w-4 h-4" />
+    <span>My Reports</span>
+  </a>
+</app-page-header>
+
+<div class="surface-card-padded mb-6 flex flex-wrap items-end justify-between gap-4">
+  <div class="flex flex-wrap gap-4 flex-1">
+    <div class="field-group min-w-[200px] max-w-[280px]">
+      <label class="field-label" for="match-item-filter">Filter by My Report</label>
+      <select
+        id="match-item-filter"
+        class="form-select"
+        [(ngModel)]="itemId"
+        (change)="onFilterChange()"
+      >
+        <option value="">All My Reports</option>
+        @for (item of myItems(); track item.id) {
+          <option [value]="item.id">[{{ item.reportType }}] {{ item.title }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field-group min-w-[160px] max-w-[200px]">
+      <label class="field-label" for="match-status-filter">Match Status</label>
+      <select
+        id="match-status-filter"
+        class="form-select"
+        [(ngModel)]="status"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Statuses</option>
+        <option value="PENDING">Pending Review</option>
+        <option value="ACCEPTED">Accepted</option>
+        <option value="REJECTED">Dismissed</option>
+      </select>
+    </div>
+  </div>
+
+  @if (itemId) {
+    <app-button
+      variant="secondary"
+      size="sm"
+      [loading]="runningScan()"
+      (click)="runScanForSelectedItem()"
+    >
+      Rescan Selected Report
+    </app-button>
+  }
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="list" [count]="4" />
+} @else if (error()) {
+  <app-error-state
+    title="Unable to load smart matches"
+    [message]="error()!"
+    (retry)="loadMatches()"
+  />
+} @else if (matches().length === 0) {
+  <app-empty-state
+    icon="sparkles"
+    title="No smart matches yet"
+    description="When opposing lost and found reports align in category, location, text, or image similarity, matches appear here."
+    actionLabel="Go to My Reports"
+    actionRouterLink="/items/my"
+  />
+} @else {
+  <div class="flex flex-col gap-4">
+    @for (match of matches(); track match.id) {
+      <article class="surface-card-padded match-card">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-[var(--color-border)]">
+          <div class="flex items-center gap-2.5">
+            <span class="confidence-pill">{{ scorePercent(match.finalScore) }}% Overall Match</span>
+            <app-badge [variant]="badgeVariant(match.status)" [label]="formatLabel(match.status)" size="sm" />
+          </div>
+
+          <a
+            [routerLink]="['/matching', match.id]"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline"
+          >
+            <span>Inspect Score &amp; Compare</span>
+            <app-icon name="arrow-right" sizeClass="w-4 h-4" />
+          </a>
+        </div>
+
+        <div class="responsive-grid-2">
+          <div class="pair-box">
+            <div class="pair-thumb">
+              @if (itemImage(match.lostItem)) {
+                <img [src]="itemImage(match.lostItem)" [alt]="match.lostItem?.title" />
+              } @else {
+                <app-icon name="photo" sizeClass="w-6 h-6 text-secondary" />
+              }
+            </div>
+            <div class="min-w-0">
+              <app-badge variant="lost" label="LOST" size="sm" />
+              <h2 class="text-base font-bold mt-1 mb-0.5 truncate">{{ match.lostItem?.title }}</h2>
+              <p class="text-xs text-secondary m-0">{{ itemLocation(match.lostItem) }}</p>
+            </div>
+          </div>
+
+          <div class="pair-box">
+            <div class="pair-thumb">
+              @if (itemImage(match.foundItem)) {
+                <img [src]="itemImage(match.foundItem)" [alt]="match.foundItem?.title" />
+              } @else {
+                <app-icon name="photo" sizeClass="w-6 h-6 text-secondary" />
+              }
+            </div>
+            <div class="min-w-0">
+              <app-badge variant="found" label="FOUND" size="sm" />
+              <h2 class="text-base font-bold mt-1 mb-0.5 truncate">{{ match.foundItem?.title }}</h2>
+              <p class="text-xs text-secondary m-0">{{ itemLocation(match.foundItem) }}</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="totalMatches()"
+      itemLabel="matches"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

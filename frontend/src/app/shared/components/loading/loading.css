@@ -1,0 +1,129 @@
+:host {
+  display: block;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.loading-inline {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0;
+}
+
+.loading-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  padding: 24px;
+  background: var(--color-overlay, rgb(15 23 42 / 55%));
+  backdrop-filter: blur(4px);
+}
+
+.loading-fullscreen .loading-label {
+  color: #ffffff;
+}
+
+.loading-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border-style: solid;
+  border-color: var(--color-border, #e2e8f0);
+  border-top-color: var(--color-primary, #0f9d8a);
+  animation: ui-spin 700ms linear infinite;
+}
+
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+.spinner-md {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+}
+
+.spinner-lg {
+  width: 44px;
+  height: 44px;
+  border-width: 3.5px;
+}
+
+.loading-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loading-dots span {
+  border-radius: 50%;
+  background: var(--color-primary, #0f9d8a);
+  animation: loading-bounce 1.2s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+.dots-sm span {
+  width: 6px;
+  height: 6px;
+}
+
+.dots-md span {
+  width: 8px;
+  height: 8px;
+}
+
+.dots-lg span {
+  width: 11px;
+  height: 11px;
+}
+
+.loading-label {
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.loading-label-sm {
+  font-size: 0.8125rem;
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton, #e2e8f0) 25%,
+    var(--color-skeleton-shine, #f1f5f9) 37%,
+    var(--color-skeleton, #e2e8f0) 63%
+  );
+  background-size: 400% 100%;
+  animation: ui-shimmer 1.4s ease infinite;
+}
+
+@keyframes loading-bounce {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

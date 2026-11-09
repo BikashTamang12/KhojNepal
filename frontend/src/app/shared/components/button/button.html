@@ -1,0 +1,18 @@
+
+<button
+  [type]="type"
+  [disabled]="disabled || loading"
+  [class]="
+    'btn btn-' +
+    variant +
+    ' btn-' +
+    size +
+    (fullWidth ? ' btn-full' : '')
+  "
+>
+  @if (loading) {
+    <span class="btn-spinner" aria-hidden="true"></span>
+  }
+
+  <ng-content />
+</button>

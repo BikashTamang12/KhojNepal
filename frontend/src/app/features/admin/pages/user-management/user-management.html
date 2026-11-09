@@ -1,1 +1,141 @@
-<p>user-management works!</p>
+<app-page-header
+  eyebrow="Administration"
+  title="User Management"
+  description="Verify community accounts, toggle active access, and manage administrator roles."
+/>
+
+<form class="surface-card-padded mb-6 flex flex-wrap items-end gap-4" (ngSubmit)="onFilterChange()">
+  <div class="field-group min-w-[210px] flex-1">
+    <label class="field-label" for="admin-user-q">Search User</label>
+    <input
+      id="admin-user-q"
+      name="q"
+      type="search"
+      class="form-control"
+      placeholder="Name or email..."
+      [(ngModel)]="q"
+    />
+  </div>
+
+  <div class="field-group min-w-[140px]">
+    <label class="field-label" for="admin-user-role">Role</label>
+    <select id="admin-user-role" name="role" class="form-select" [(ngModel)]="role" (change)="onFilterChange()">
+      <option value="">All Roles</option>
+      <option value="USER">Member</option>
+      <option value="ADMIN">Admin</option>
+    </select>
+  </div>
+
+  <div class="field-group min-w-[140px]">
+    <label class="field-label" for="admin-user-verified">Verification</label>
+    <select id="admin-user-verified" name="isVerified" class="form-select" [(ngModel)]="isVerifiedFilter" (change)="onFilterChange()">
+      <option value="">Any</option>
+      <option value="true">Verified</option>
+      <option value="false">Unverified</option>
+    </select>
+  </div>
+
+  <div class="field-group min-w-[140px]">
+    <label class="field-label" for="admin-user-active">Account Status</label>
+    <select id="admin-user-active" name="isActive" class="form-select" [(ngModel)]="isActiveFilter" (change)="onFilterChange()">
+      <option value="">Any</option>
+      <option value="true">Active</option>
+      <option value="false">Suspended</option>
+    </select>
+  </div>
+
+  <app-button type="submit" variant="primary" size="md">Search</app-button>
+</form>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="table" [count]="5" />
+} @else if (error()) {
+  <app-error-state
+    title="Failed to load users"
+    [message]="error()!"
+    (retry)="loadUsers()"
+  />
+} @else if (users().length === 0) {
+  <app-empty-state
+    icon="users"
+    title="No users match filter"
+    description="Adjust your search or role filters to find accounts."
+  />
+} @else {
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name &amp; Email</th>
+          <th>Role</th>
+          <th>Verified</th>
+          <th>Status</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of users(); track u.id) {
+          <tr>
+            <td>
+              <strong class="block">{{ u.fullName }}</strong>
+              <span class="text-xs text-secondary">{{ u.email }}</span>
+            </td>
+            <td>
+              <app-badge [variant]="u.role === 'ADMIN' ? 'returned' : 'neutral'" [label]="u.role" size="sm" />
+            </td>
+            <td>
+              <app-badge [variant]="u.isVerified ? 'verified' : 'neutral'" [label]="u.isVerified ? 'Verified' : 'Pending'" size="sm" />
+            </td>
+            <td>
+              <app-badge [variant]="u.isActive ? 'found' : 'rejected'" [label]="u.isActive ? 'Active' : 'Suspended'" size="sm" />
+            </td>
+            <td class="whitespace-nowrap">{{ formatDate(u.createdAt) }}</td>
+            <td>
+              <div class="flex flex-wrap gap-2">
+                <app-button
+                  size="sm"
+                  variant="outline"
+                  [loading]="busyUserId() === u.id"
+                  (click)="toggleVerified(u)"
+                >
+                  {{ u.isVerified ? 'Unverify' : 'Verify' }}
+                </app-button>
+
+                @if (!isSelf(u)) {
+                  <app-button
+                    size="sm"
+                    [variant]="u.isActive ? 'danger' : 'secondary'"
+                    [loading]="busyUserId() === u.id"
+                    (click)="toggleActive(u)"
+                  >
+                    {{ u.isActive ? 'Suspend' : 'Activate' }}
+                  </app-button>
+
+                  <app-button
+                    size="sm"
+                    variant="outline"
+                    [loading]="busyUserId() === u.id"
+                    (click)="toggleRole(u)"
+                  >
+                    {{ u.role === 'ADMIN' ? 'Set User' : 'Make Admin' }}
+                  </app-button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="total()"
+      itemLabel="users"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

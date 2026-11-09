@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import type { Item } from '../../items/entities/item.entity.js';
+import { decimalTransformer } from '../../common/transformers/decimal.transformer.js';
 
 @Entity('locations')
 @Index(['province', 'district', 'municipality'])
@@ -30,10 +31,22 @@ export class Location {
   @Column({ type: 'varchar', length: 150, nullable: true })
   area?: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
   latitude?: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
   longitude?: number;
 
   @OneToMany('Item', 'location')

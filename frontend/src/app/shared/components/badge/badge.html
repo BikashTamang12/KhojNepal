@@ -1,0 +1,11 @@
+
+<span
+  class="badge"
+  [class]="'badge badge-' + variant + ' badge-' + size"
+  role="status"
+>
+  <ng-content />
+  @if (label) {
+    {{ label }}
+  }
+</span>

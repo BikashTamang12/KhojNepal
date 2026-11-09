@@ -8,6 +8,7 @@ import {
   ManyToOne,
   OneToOne,
   JoinColumn,
+  type Relation,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity.js';
 import { Claim } from '../../claims/entities/claim.entity.js';
@@ -24,7 +25,7 @@ export class ItemHandover {
 
   @OneToOne(() => Claim, (claim) => claim.handover, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'claim_id' })
-  claim: Claim;
+  claim: Relation<Claim>;
 
   @Index()
   @Column({ name: 'handed_over_by_id', type: 'uuid' })
@@ -32,7 +33,7 @@ export class ItemHandover {
 
   @ManyToOne(() => User, (user) => user.handedOverItems, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'handed_over_by_id' })
-  handedOverBy: User;
+  handedOverBy: Relation<User>;
 
   @Index()
   @Column({ name: 'received_by_id', type: 'uuid' })
@@ -40,7 +41,7 @@ export class ItemHandover {
 
   @ManyToOne(() => User, (user) => user.receivedItems, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'received_by_id' })
-  receivedBy: User;
+  receivedBy: Relation<User>;
 
   @Column({ name: 'handover_location', type: 'varchar', length: 255 })
   handoverLocation: string;

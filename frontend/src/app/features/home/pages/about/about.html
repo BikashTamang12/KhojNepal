@@ -1,0 +1,57 @@
+<section class="page-container py-10 sm:py-14">
+  <app-page-header
+    eyebrow="About KhojNepal"
+    title="Smart Lost & Found Recovery Across Nepal"
+    description="KhojNepal connects people who lose belongings with finders through structured reporting, automated multi-signal matching, and verified claim handovers."
+  >
+    <div page-actions class="flex flex-wrap gap-3">
+      <a
+        routerLink="/items"
+        class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+      >
+        Browse Reports
+      </a>
+      <a
+        routerLink="/items/report-lost"
+        class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+      >
+        Report Lost Item
+      </a>
+    </div>
+  </app-page-header>
+
+  <div class="responsive-grid-2 mb-10">
+    @for (pillar of pillars; track pillar.title) {
+      <article class="surface-card-padded flex flex-col gap-3">
+        <div class="w-11 h-11 rounded-xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center">
+          <app-icon [name]="pillar.icon" sizeClass="w-5 h-5" />
+        </div>
+        <h2 class="text-xl">{{ pillar.title }}</h2>
+        <p class="text-secondary m-0 leading-relaxed">{{ pillar.description }}</p>
+      </article>
+    }
+  </div>
+
+  <div class="surface-card-padded flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-xl mb-1">Ready to recover or return an item?</h2>
+      <p class="text-secondary m-0">
+        Create a free account to post reports, receive automated match alerts, and manage verified claims.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3 shrink-0">
+      <a
+        routerLink="/items/report-found"
+        class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+      >
+        Report Found Item
+      </a>
+      <a
+        routerLink="/register"
+        class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+      >
+        Create Account
+      </a>
+    </div>
+  </div>
+</section>

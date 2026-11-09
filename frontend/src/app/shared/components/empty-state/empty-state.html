@@ -1,0 +1,43 @@
+<section
+  class="empty-state surface-card"
+  [class.empty-state-compact]="compact"
+  role="status"
+  aria-live="polite"
+>
+  <div class="empty-state-icon" aria-hidden="true">
+    <app-icon [name]="icon" [sizeClass]="compact ? 'w-6 h-6' : 'w-8 h-8'" />
+  </div>
+
+  <div class="empty-state-body">
+    <h2 class="empty-state-title">{{ title }}</h2>
+
+    @if (description) {
+      <p class="empty-state-description">{{ description }}</p>
+    }
+  </div>
+
+  <div class="empty-state-actions">
+    @if (actionLabel) {
+      @if (actionRouterLink) {
+        <a
+          [routerLink]="actionRouterLink"
+          class="empty-state-link touch-target"
+          [class.link-secondary]="actionVariant === 'secondary'"
+          [class.link-outline]="actionVariant === 'outline'"
+        >
+          {{ actionLabel }}
+        </a>
+      } @else {
+        <app-button
+          [variant]="actionVariant"
+          size="md"
+          (click)="onAction()"
+        >
+          {{ actionLabel }}
+        </app-button>
+      }
+    }
+
+    <ng-content select="[empty-actions]" />
+  </div>
+</section>

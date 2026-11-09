@@ -1,1 +1,101 @@
-<p>register works!</p>
+<section class="auth-section">
+  <div class="surface-card-padded auth-card">
+    <div class="mb-6 text-center">
+      <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] mb-2">
+        <app-icon name="reunite" sizeClass="w-4 h-4" />
+        Join Community
+      </span>
+      <h1 class="text-2xl font-extrabold mb-1">Create Your Account</h1>
+      <p class="text-secondary m-0">
+        Report lost or found items and track smart matches across Nepal.
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert-banner alert-banner-danger mb-5" role="alert">
+        <app-icon name="alert-circle" sizeClass="w-5 h-5 shrink-0" />
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-4">
+      <app-input
+        id="register-full-name"
+        name="fullName"
+        type="text"
+        label="Full Name"
+        placeholder="e.g. Aarav Shrestha"
+        autocomplete="name"
+        [required]="true"
+        [error]="getFieldError('fullName')"
+        formControlName="fullName"
+      />
+
+      <app-input
+        id="register-email"
+        name="email"
+        type="email"
+        label="Email Address"
+        placeholder="you@example.com"
+        autocomplete="email"
+        [required]="true"
+        [error]="getFieldError('email')"
+        formControlName="email"
+      />
+
+      <app-input
+        id="register-phone"
+        name="phone"
+        type="tel"
+        label="Phone Number (Optional)"
+        placeholder="98XXXXXXXX"
+        autocomplete="tel"
+        hint="Shared only when a verified claim is approved."
+        [error]="getFieldError('phone')"
+        formControlName="phone"
+      />
+
+      <app-input
+        id="register-password"
+        name="password"
+        type="password"
+        label="Password"
+        placeholder="Minimum 6 characters"
+        autocomplete="new-password"
+        [required]="true"
+        [error]="getFieldError('password')"
+        formControlName="password"
+      />
+
+      <app-input
+        id="register-confirm-password"
+        name="confirmPassword"
+        type="password"
+        label="Confirm Password"
+        placeholder="Re-enter your password"
+        autocomplete="new-password"
+        [required]="true"
+        [error]="getFieldError('confirmPassword')"
+        formControlName="confirmPassword"
+      />
+
+      <app-button
+        type="submit"
+        variant="primary"
+        size="lg"
+        [fullWidth]="true"
+        [loading]="submitting()"
+        class="mt-2"
+      >
+        Create Account
+      </app-button>
+    </form>
+
+    <p class="text-center text-secondary text-sm mt-6 mb-0">
+      Already have an account?
+      <a routerLink="/login" class="font-semibold text-[var(--color-primary)] hover:underline">
+        Sign in
+      </a>
+    </p>
+  </div>
+</section>

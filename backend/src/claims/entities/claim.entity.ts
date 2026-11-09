@@ -8,6 +8,7 @@ import {
   ManyToOne,
   OneToOne,
   JoinColumn,
+  type Relation,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity.js';
 import { Item } from '../../items/entities/item.entity.js';
@@ -28,7 +29,7 @@ export class Claim {
 
   @ManyToOne(() => Item, (item) => item.claims, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'item_id' })
-  item: Item;
+  item: Relation<Item>;
 
   @Index()
   @Column({ name: 'claimant_id', type: 'uuid' })
@@ -36,7 +37,7 @@ export class Claim {
 
   @ManyToOne(() => User, (user) => user.claims, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'claimant_id' })
-  claimant: User;
+  claimant: Relation<User>;
 
   @Column({ type: 'text' })
   explanation: string;
@@ -71,7 +72,7 @@ export class Claim {
 
   @ManyToOne(() => User, (user) => user.reviewedClaims, { nullable: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'reviewed_by_id' })
-  reviewedBy?: User;
+  reviewedBy?: Relation<User>;
 
   @Column({ name: 'reviewed_at', type: 'timestamptz', nullable: true })
   reviewedAt?: Date;
@@ -80,7 +81,7 @@ export class Claim {
   adminNotes?: string;
 
   @OneToOne('ItemHandover', 'claim')
-  handover?: ItemHandover;
+  handover?: Relation<ItemHandover>;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

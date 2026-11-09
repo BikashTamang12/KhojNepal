@@ -1,0 +1,90 @@
+<app-page-header
+  eyebrow="Administration"
+  title="Category Taxonomy"
+  description="Create, enable, or deactivate item categories available across report forms."
+/>
+
+<form [formGroup]="form" (ngSubmit)="createCategory()" class="surface-card-padded mb-6">
+  <h2 class="text-base font-bold mb-4">Add New Category</h2>
+  <div class="form-grid">
+    <app-input
+      id="cat-name"
+      label="Category Name"
+      placeholder="e.g. Keys & Locks"
+      [required]="true"
+      formControlName="name"
+    />
+    <app-input
+      id="cat-description"
+      label="Description (Optional)"
+      placeholder="Short guide for reporters..."
+      formControlName="description"
+    />
+  </div>
+  <div class="form-actions">
+    <app-button type="submit" variant="primary" [loading]="creating()">
+      Create Category
+    </app-button>
+  </div>
+</form>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="table" [count]="4" />
+} @else if (error()) {
+  <app-error-state
+    title="Failed to load categories"
+    [message]="error()!"
+    (retry)="loadCategories()"
+  />
+} @else if (categories().length === 0) {
+  <app-empty-state
+    icon="filter"
+    title="No categories configured"
+    description="Create your first item category above."
+  />
+} @else {
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of categories(); track c.id) {
+          <tr>
+            <td class="font-bold">{{ c.name }}</td>
+            <td class="text-secondary">{{ c.description || '—' }}</td>
+            <td>
+              <app-badge [variant]="c.isActive ? 'found' : 'neutral'" [label]="c.isActive ? 'Active' : 'Inactive'" size="sm" />
+            </td>
+            <td>
+              <app-button
+                size="sm"
+                [variant]="c.isActive ? 'danger' : 'secondary'"
+                [loading]="busyId() === c.id"
+                (click)="toggleActive(c)"
+              >
+                {{ c.isActive ? 'Deactivate' : 'Reactivate' }}
+              </app-button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<app-dialog
+  [open]="!!categoryToDeactivate()"
+  title="Deactivate category?"
+  description="Existing items remain intact, while new reports will not be able to choose this category."
+  variant="warning"
+  confirmLabel="Deactivate"
+  [loading]="!!busyId()"
+  (openChange)="!$event && categoryToDeactivate.set(null)"
+  (confirmed)="executeDeactivate()"
+/>

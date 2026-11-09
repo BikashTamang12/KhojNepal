@@ -1,1 +1,168 @@
-<p>item-list works!</p>
+<app-page-header
+  eyebrow="Personal Reports"
+  title="My Reported Items"
+  description="Manage your lost and found listings, run smart match scans, or update availability status."
+>
+  <div page-actions class="flex flex-wrap gap-2.5">
+    <a
+      routerLink="/items/report-lost"
+      class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+    >
+      <app-icon name="plus" sizeClass="w-4 h-4" />
+      <span>Report Lost</span>
+    </a>
+    <a
+      routerLink="/items/report-found"
+      class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+    >
+      <span>Report Found</span>
+    </a>
+  </div>
+</app-page-header>
+
+<div class="surface-card-padded mb-6 flex flex-wrap items-end gap-4">
+  <div class="field-group max-w-[210px]">
+    <label class="field-label" for="my-items-type">Report Type</label>
+    <select
+      id="my-items-type"
+      class="form-select"
+      [(ngModel)]="reportType"
+      (change)="onFilterChange()"
+    >
+      <option value="">All Reports</option>
+      <option value="LOST">Lost Only</option>
+      <option value="FOUND">Found Only</option>
+    </select>
+  </div>
+
+  <div class="field-group max-w-[210px]">
+    <label class="field-label" for="my-items-status">Status</label>
+    <select
+      id="my-items-status"
+      class="form-select"
+      [(ngModel)]="status"
+      (change)="onFilterChange()"
+    >
+      <option value="">All Statuses</option>
+      <option value="OPEN">Open</option>
+      <option value="CLAIM_PENDING">Claim Pending</option>
+      <option value="RESOLVED">Resolved</option>
+      <option value="CLOSED">Closed</option>
+    </select>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="list" [count]="4" />
+} @else if (error()) {
+  <app-error-state
+    title="Failed to load your reports"
+    [message]="error()!"
+    (retry)="loadMyItems()"
+  />
+} @else if (items().length === 0) {
+  <app-empty-state
+    icon="package"
+    title="No reports submitted yet"
+    description="Post your first lost or found report to let smart matching scan the network for matches."
+    actionLabel="Report Lost Item"
+    actionRouterLink="/items/report-lost"
+  />
+} @else {
+  <div class="flex flex-col gap-4">
+    @for (item of items(); track item.id) {
+      <article class="surface-card-padded report-row">
+        <div class="report-thumb-wrap">
+          @if (getThumbUrl(item)) {
+            <img [src]="getThumbUrl(item)" [alt]="item.title" class="report-thumb" />
+          } @else {
+            <div class="report-thumb-placeholder">
+              <app-icon name="photo" sizeClass="w-6 h-6 text-secondary" />
+            </div>
+          }
+        </div>
+
+        <div class="report-body min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2 mb-1.5">
+            <app-badge
+              [variant]="item.reportType === 'FOUND' ? 'found' : 'lost'"
+              [label]="item.reportType"
+              size="sm"
+            />
+            <app-badge
+              [variant]="badgeVariant(item.status)"
+              [label]="formatLabel(item.status)"
+              size="sm"
+            />
+            <span class="text-xs text-secondary">{{ item.category?.name || 'General' }}</span>
+          </div>
+
+          <h2 class="text-lg font-bold mb-1">
+            <a [routerLink]="['/items', item.id]" class="hover:text-[var(--color-primary)]">
+              {{ item.title }}
+            </a>
+          </h2>
+
+          <p class="text-secondary text-sm m-0 mb-2 line-clamp-2">{{ item.description }}</p>
+
+          <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs text-secondary">
+            <span class="inline-flex items-center gap-1">
+              <app-icon name="map-pin" sizeClass="w-3.5 h-3.5 text-brand-crimson" />
+              {{ getLocationText(item) }}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <app-icon name="calendar" sizeClass="w-3.5 h-3.5 text-brand-teal" />
+              {{ getDateText(item) }}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <app-icon name="photo" sizeClass="w-3.5 h-3.5" />
+              {{ item.images.length }} photo(s)
+            </span>
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <a
+            [routerLink]="['/items', item.id]"
+            class="inline-flex items-center justify-center gap-1.5 min-h-[36px] px-3 rounded-lg border border-[var(--color-border)] text-sm font-semibold hover:bg-[var(--color-hover)]"
+          >
+            <app-icon name="eye" sizeClass="w-4 h-4" />
+            <span>Details</span>
+          </a>
+
+          @if (item.status === 'OPEN' || item.status === 'CLAIM_PENDING') {
+            <app-button
+              variant="secondary"
+              size="sm"
+              [loading]="busyItemId() === item.id"
+              (click)="runMatching(item)"
+            >
+              Run Match
+            </app-button>
+          }
+
+          @if (item.status !== 'RESOLVED') {
+            <app-button
+              variant="outline"
+              size="sm"
+              [disabled]="busyItemId() === item.id"
+              (click)="toggleCloseStatus(item)"
+            >
+              {{ item.status === 'CLOSED' ? 'Reopen' : 'Close' }}
+            </app-button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="totalItems()"
+      itemLabel="reports"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

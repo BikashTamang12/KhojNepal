@@ -1,1 +1,372 @@
-<p>item-detail works!</p>
+<section class="page-container py-8 sm:py-10">
+  <div class="mb-5">
+    <a
+      routerLink="/items"
+      class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-[var(--color-primary)]"
+    >
+      <app-icon name="arrow-left" sizeClass="w-4 h-4" />
+      <span>Back to Browse Items</span>
+    </a>
+  </div>
+
+  @if (loading()) {
+    <app-loading mode="skeleton" skeletonVariant="detail" [count]="1" />
+  } @else if (error() || !item()) {
+    <app-error-state
+      title="Report unavailable"
+      [message]="error() || 'The requested item could not be found.'"
+      (retry)="retryLoad()"
+    />
+  } @else {
+    @let current = item()!;
+    <div class="detail-grid">
+      <!-- Left Column: Gallery + Description + Edit Panel -->
+      <div class="flex flex-col gap-6 min-w-0">
+        <div class="surface-card overflow-hidden">
+          <div class="main-photo-stage">
+            @if (activeImageUrl()) {
+              <img [src]="activeImageUrl()" [alt]="current.title" />
+            } @else {
+              <div class="flex flex-col items-center gap-2 text-secondary">
+                <app-icon name="photo" sizeClass="w-12 h-12 opacity-70" />
+                <span class="text-sm">No photos attached to this report</span>
+              </div>
+            }
+          </div>
+
+          @if (current.images.length > 0) {
+            <div class="thumb-strip">
+              @for (img of current.images; track img.id) {
+                <div class="thumb-item" [class.active]="activeImageUrl() === getImageSrc(img.filePath)">
+                  <button type="button" class="thumb-btn" (click)="selectImage(img)">
+                    <img [src]="getImageSrc(img.filePath)" [alt]="img.originalFilename || current.title" />
+                  </button>
+                  @if (canManageItem()) {
+                    <div class="thumb-actions">
+                      <button
+                        type="button"
+                        class="text-[11px] font-semibold"
+                        [disabled]="img.isPrimary"
+                        (click)="setAsPrimary(img)"
+                      >
+                        {{ img.isPrimary ? 'Primary' : 'Make Primary' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="text-[var(--color-danger)]"
+                        (click)="confirmDeleteImage(img)"
+                        aria-label="Delete image"
+                      >
+                        <app-icon name="trash" sizeClass="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (canManageItem() && current.images.length < 5) {
+            <div class="px-4 py-3 border-t border-[var(--color-border)] flex items-center justify-between gap-3">
+              <span class="text-xs text-secondary">
+                {{ current.images.length }}/5 photos attached
+              </span>
+              <label class="inline-flex items-center gap-1.5 min-h-[36px] px-3 rounded-lg border border-[var(--color-border)] text-xs font-semibold cursor-pointer hover:bg-[var(--color-hover)]">
+                <app-icon name="upload" sizeClass="w-3.5 h-3.5" />
+                <span>{{ uploadingImages() ? 'Uploading...' : 'Add Photos' }}</span>
+                <input
+                  type="file"
+                  class="sr-only"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  [disabled]="uploadingImages()"
+                  (change)="uploadMoreImages($event)"
+                />
+              </label>
+            </div>
+          }
+        </div>
+
+        <article class="surface-card-padded">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <app-badge
+              [variant]="current.reportType === 'FOUND' ? 'found' : 'lost'"
+              [label]="current.reportType === 'FOUND' ? 'Found Item' : 'Lost Item'"
+            />
+            <app-badge
+              [variant]="badgeVariant(current.status)"
+              [label]="formatLabel(current.status)"
+            />
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--color-surface-muted)] text-secondary">
+              {{ current.category?.name || 'General' }}
+            </span>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl font-extrabold mb-3">{{ current.title }}</h1>
+          <p class="leading-relaxed whitespace-pre-line text-[var(--color-text)] mb-6">
+            {{ current.description }}
+          </p>
+
+          <dl class="meta-grid">
+            <div>
+              <dt>Location</dt>
+              <dd>{{ formatLocation(current) }}</dd>
+            </div>
+            <div>
+              <dt>{{ current.reportType === 'LOST' ? 'Date Lost' : 'Date Found' }}</dt>
+              <dd>{{ formatDate(current.dateLostOrFound) }}</dd>
+            </div>
+            @if (current.brand) {
+              <div>
+                <dt>Brand</dt>
+                <dd>{{ current.brand }}</dd>
+              </div>
+            }
+            @if (current.color) {
+              <div>
+                <dt>Color</dt>
+                <dd>{{ current.color }}</dd>
+              </div>
+            }
+            @if (current.specificLocationDetails) {
+              <div class="sm:col-span-2">
+                <dt>Specific Landmark</dt>
+                <dd>{{ current.specificLocationDetails }}</dd>
+              </div>
+            }
+            <div>
+              <dt>Reported By</dt>
+              <dd class="inline-flex items-center gap-1.5">
+                <span>{{ current.reporter?.fullName || 'Community Member' }}</span>
+                @if (current.reporter?.isVerified) {
+                  <app-icon name="check-badge" sizeClass="w-4 h-4 text-[var(--color-primary)]" />
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Posted On</dt>
+              <dd>{{ formatDate(current.createdAt) }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <!-- Edit Form for Owner / Admin -->
+        @if (canManageItem() && showEditPanel()) {
+          <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="surface-card-padded">
+            <h2 class="text-lg font-bold mb-4">Edit Report Details</h2>
+            <div class="form-grid">
+              <div class="form-grid-full">
+                <app-input id="edit-title" label="Title" [required]="true" formControlName="title" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="edit-category">Category</label>
+                <select id="edit-category" class="form-select" formControlName="categoryId">
+                  @for (cat of categories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+              <app-input id="edit-date" type="date" label="Date" [required]="true" formControlName="dateLostOrFound" />
+              <div class="field-group form-grid-full">
+                <label class="field-label" for="edit-location">Location</label>
+                <select id="edit-location" class="form-select" formControlName="locationId">
+                  @for (loc of locations(); track loc.id) {
+                    <option [value]="loc.id">
+                      {{ loc.province }} — {{ loc.district }} — {{ loc.municipality }}{{ loc.area ? ' (' + loc.area + ')' : '' }}
+                    </option>
+                  }
+                </select>
+              </div>
+              <app-input id="edit-brand" label="Brand" formControlName="brand" />
+              <app-input id="edit-color" label="Color" formControlName="color" />
+              <div class="form-grid-full">
+                <app-input id="edit-landmark" label="Specific Landmark" formControlName="specificLocationDetails" />
+              </div>
+              <div class="field-group form-grid-full">
+                <label class="field-label" for="edit-description">Description</label>
+                <textarea id="edit-description" class="form-textarea" rows="3" formControlName="description"></textarea>
+              </div>
+              <div class="form-grid-full">
+                <app-input id="edit-contact" label="Contact Note" formControlName="contactInfo" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <app-button type="button" variant="outline" (click)="showEditPanel.set(false)">
+                Cancel
+              </app-button>
+              <app-button type="submit" variant="primary" [loading]="savingEdit()">
+                Save Changes
+              </app-button>
+            </div>
+          </form>
+        }
+      </div>
+
+      <!-- Right Column: Privacy Contact + Owner Actions + Claim Form -->
+      <aside class="flex flex-col gap-5">
+        <!-- Contact Visibility Card -->
+        <div class="surface-card-padded">
+          <h2 class="text-base font-bold mb-2 flex items-center gap-2">
+            <app-icon name="shield-check" sizeClass="w-5 h-5 text-[var(--color-primary)]" />
+            <span>Contact Information</span>
+          </h2>
+
+          @if (current.canViewContact) {
+            @if (current.contactInfo) {
+              <div class="alert-banner alert-banner-success">
+                <app-icon name="check-circle" sizeClass="w-5 h-5 shrink-0" />
+                <div>
+                  <strong class="block">Authorized Contact Note</strong>
+                  <span>{{ current.contactInfo }}</span>
+                </div>
+              </div>
+            } @else {
+              <p class="text-sm text-secondary m-0">
+                No extra contact note was added on this report.
+              </p>
+            }
+          } @else {
+            <div class="alert-banner alert-banner-info">
+              <app-icon name="info" sizeClass="w-5 h-5 shrink-0" />
+              <span>
+                Contact details are hidden for privacy and are unlocked only after your claim is approved.
+              </span>
+            </div>
+          }
+        </div>
+
+        <!-- Owner / Admin Management Card -->
+        @if (canManageItem()) {
+          <div class="surface-card-padded flex flex-col gap-4">
+            <h2 class="text-base font-bold m-0">Manage Report</h2>
+
+            <div class="flex flex-wrap gap-2">
+              <app-button variant="outline" size="sm" (click)="toggleEditPanel()">
+                {{ showEditPanel() ? 'Close Editor' : 'Edit Details' }}
+              </app-button>
+              <app-button
+                variant="secondary"
+                size="sm"
+                [loading]="runningMatch()"
+                (click)="runMatching()"
+              >
+                Scan Smart Matches
+              </app-button>
+              <a
+                routerLink="/matching"
+                [queryParams]="{ itemId: current.id }"
+                class="inline-flex items-center min-h-[36px] px-3 rounded-lg border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-hover)]"
+              >
+                View Matches
+              </a>
+            </div>
+
+            <div class="pt-3 border-t border-[var(--color-border)] flex flex-col gap-2">
+              <label class="field-label" for="detail-status-select">Update Status</label>
+              <div class="flex gap-2">
+                <select
+                  id="detail-status-select"
+                  class="form-select flex-1"
+                  [(ngModel)]="selectedStatus"
+                >
+                  <option value="OPEN">Open</option>
+                  <option value="CLAIM_PENDING">Claim Pending</option>
+                  <option value="RESOLVED">Resolved</option>
+                  <option value="CLOSED">Closed</option>
+                </select>
+                <app-button
+                  variant="primary"
+                  size="sm"
+                  [loading]="updatingStatus()"
+                  [disabled]="selectedStatus === current.status"
+                  (click)="updateStatus()"
+                >
+                  Save
+                </app-button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Claim Submission Card -->
+        @if (!authService.isAuthenticated()) {
+          <div class="surface-card-padded flex flex-col gap-3">
+            <h2 class="text-base font-bold m-0">Think this item matches yours?</h2>
+            <p class="text-sm text-secondary m-0">
+              Sign in to submit an ownership claim with supporting evidence.
+            </p>
+            <a
+              routerLink="/login"
+              [queryParams]="{ returnUrl: '/items/' + current.id }"
+              class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+            >
+              Sign In to Claim
+            </a>
+          </div>
+        } @else if (canSubmitClaim()) {
+          <form [formGroup]="claimForm" (ngSubmit)="submitClaim()" class="surface-card-padded flex flex-col gap-4">
+            <div>
+              <h2 class="text-base font-bold mb-1">Submit Ownership / Return Claim</h2>
+              <p class="text-xs text-secondary m-0">
+                Explain unique details only the true owner or finder would know.
+              </p>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="claim-explanation">
+                Why do you believe this is yours / matched? <span class="field-required">*</span>
+              </label>
+              <textarea
+                id="claim-explanation"
+                class="form-textarea"
+                rows="3"
+                placeholder="Describe when and where it was lost or found (minimum 10 characters)..."
+                formControlName="explanation"
+              ></textarea>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="claim-evidence">
+                Verifying Evidence / Proof <span class="field-required">*</span>
+              </label>
+              <textarea
+                id="claim-evidence"
+                class="form-textarea"
+                rows="3"
+                placeholder="Serial digits, lockscreen hint, contents inside, unique scratches (minimum 5 characters)..."
+                formControlName="evidenceDescription"
+              ></textarea>
+            </div>
+
+            <app-button
+              type="submit"
+              variant="primary"
+              size="md"
+              [fullWidth]="true"
+              [loading]="submittingClaim()"
+            >
+              Submit Verification Claim
+            </app-button>
+          </form>
+        } @else if (current.status === 'RESOLVED' || current.status === 'CLOSED') {
+          <div class="surface-card-padded">
+            <p class="text-sm text-secondary m-0">
+              This report is currently marked as <strong>{{ formatLabel(current.status) }}</strong> and is not accepting new claims.
+            </p>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+</section>
+
+<app-dialog
+  [open]="!!imageToDelete()"
+  title="Remove photo?"
+  description="This photo will be permanently deleted from the item report."
+  variant="danger"
+  confirmLabel="Delete Photo"
+  [loading]="deletingImage()"
+  (openChange)="!$event && imageToDelete.set(null)"
+  (confirmed)="executeDeleteImage()"
+/>

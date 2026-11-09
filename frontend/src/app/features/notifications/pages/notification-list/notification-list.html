@@ -1,1 +1,114 @@
-<p>notification-list works!</p>
+<app-page-header
+  eyebrow="Activity Alerts"
+  title="Notifications"
+  description="Real-time alerts for new smart matches, claim verification updates, and scheduled handovers."
+>
+  <div page-actions>
+    <app-button
+      variant="outline"
+      size="sm"
+      [loading]="markingAll()"
+      [disabled]="notificationService.unreadCount() === 0"
+      (click)="markAllRead()"
+    >
+      Mark All Read
+    </app-button>
+  </div>
+</app-page-header>
+
+<div class="surface-card-padded mb-6 flex flex-wrap gap-4">
+  <div class="field-group max-w-[200px]">
+    <label class="field-label" for="notif-read-filter">Status</label>
+    <select
+      id="notif-read-filter"
+      class="form-select"
+      [(ngModel)]="readFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="">All Notifications</option>
+      <option value="unread">Unread Only</option>
+      <option value="read">Read Only</option>
+    </select>
+  </div>
+
+  <div class="field-group max-w-[220px]">
+    <label class="field-label" for="notif-type-filter">Category</label>
+    <select
+      id="notif-type-filter"
+      class="form-select"
+      [(ngModel)]="typeFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="">All Types</option>
+      <option value="MATCH_FOUND">Match Alerts</option>
+      <option value="CLAIM_UPDATE">Claim &amp; Handover Updates</option>
+      <option value="SYSTEM">System Messages</option>
+    </select>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="list" [count]="5" />
+} @else if (error()) {
+  <app-error-state
+    title="Failed to load notifications"
+    [message]="error()!"
+    (retry)="loadNotifications()"
+  />
+} @else if (notifications().length === 0) {
+  <app-empty-state
+    icon="bell"
+    title="You are all caught up"
+    description="No notifications match the selected filter."
+  />
+} @else {
+  <div class="flex flex-col gap-3">
+    @for (item of notifications(); track item.id) {
+      <article
+        class="surface-card-padded notif-row"
+        [class.notif-unread]="!item.isRead"
+      >
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2 mb-1.5">
+            <app-badge [variant]="typeVariant(item.type)" [label]="formatType(item.type)" size="sm" />
+            @if (!item.isRead) {
+              <span class="unread-pill">Unread</span>
+            }
+            <span class="text-xs text-secondary">{{ formatTime(item.createdAt) }}</span>
+          </div>
+
+          <h2 class="text-base font-bold mb-1">{{ item.title }}</h2>
+          <p class="text-sm text-secondary m-0">{{ item.message }}</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          @if (!item.isRead) {
+            <app-button variant="outline" size="sm" (click)="markRead(item)">
+              Mark Read
+            </app-button>
+          }
+          @if (getTargetLink(item); as link) {
+            <a
+              [routerLink]="link"
+              (click)="markRead(item)"
+              class="inline-flex items-center gap-1.5 min-h-[36px] px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] text-xs font-semibold"
+            >
+              <span>Open</span>
+              <app-icon name="arrow-right" sizeClass="w-3.5 h-3.5" />
+            </a>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="total()"
+      itemLabel="notifications"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

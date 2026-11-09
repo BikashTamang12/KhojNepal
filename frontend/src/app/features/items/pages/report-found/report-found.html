@@ -1,1 +1,21 @@
-<p>report-found works!</p>
+<app-page-header
+  eyebrow="Found Item Report"
+  title="Report a Found Item"
+  description="Share where you found the item and upload clear photos while keeping sensitive owner proof private."
+>
+  <a
+    page-actions
+    routerLink="/items/my"
+    class="inline-flex items-center gap-2 min-h-[42px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+  >
+    <app-icon name="arrow-left" sizeClass="w-4 h-4" />
+    <span>Back to My Reports</span>
+  </a>
+</app-page-header>
+
+<app-item-report-form
+  reportType="FOUND"
+  [submitting]="submitting()"
+  [serverError]="serverError()"
+  (submitted)="handleSubmit($event)"
+/>

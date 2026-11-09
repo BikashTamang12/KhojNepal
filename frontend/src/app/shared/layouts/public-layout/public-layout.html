@@ -1,0 +1,201 @@
+<div class="public-layout">
+  <header class="site-header">
+    <div class="header-container">
+      <app-logo size="md" />
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a
+          routerLink="/"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Home
+        </a>
+        <a
+          routerLink="/items"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Browse Items
+        </a>
+        <a routerLink="/about" routerLinkActive="active">About</a>
+
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/items/report-lost" routerLinkActive="active">Report Lost</a>
+          <a routerLink="/items/report-found" routerLinkActive="active">Report Found</a>
+          <a routerLink="/items/my" routerLinkActive="active">Workspace</a>
+          @if (authService.isAdmin()) {
+            <a routerLink="/admin" routerLinkActive="active">Admin</a>
+          }
+        }
+      </nav>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          class="theme-toggle touch-target transition-colors duration-200"
+          (click)="toggleTheme()"
+          [attr.aria-label]="
+            'Switch to ' +
+            (themeService.theme() === 'light' ? 'dark' : 'light') +
+            ' mode'
+          "
+        >
+          @if (themeService.theme() === 'light') {
+            <app-icon name="moon" sizeClass="w-4 h-4 text-[var(--color-text)]" />
+          } @else {
+            <app-icon name="sun" sizeClass="w-4 h-4 text-brand-amber" />
+          }
+        </button>
+
+        @if (authService.isAuthenticated()) {
+          <a
+            routerLink="/notifications"
+            class="icon-nav-btn touch-target relative"
+            aria-label="Notifications"
+          >
+            <app-icon name="bell" sizeClass="w-4 h-4" />
+            @if (notificationService.unreadCount() > 0) {
+              <span class="unread-dot">{{ notificationService.unreadCount() > 9 ? '9+' : notificationService.unreadCount() }}</span>
+            }
+          </a>
+        }
+
+        <div class="desktop-auth-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/profile" class="login-link inline-flex items-center gap-1.5">
+              <app-icon name="user" sizeClass="w-4 h-4" />
+              <span>{{ authService.user()?.fullName }}</span>
+            </a>
+            <button type="button" class="logout-btn" (click)="logout()">
+              <app-icon name="logout" sizeClass="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          } @else {
+            <a routerLink="/login" class="login-link">Login</a>
+            <a routerLink="/register" class="register-link">Get Started</a>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="mobile-menu-toggle touch-target"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="public-mobile-nav"
+          aria-label="Toggle navigation menu"
+        >
+          <app-icon
+            [name]="mobileMenuOpen() ? 'x' : 'menu'"
+            sizeClass="w-5 h-5"
+          />
+        </button>
+      </div>
+    </div>
+
+    @if (mobileMenuOpen()) {
+      <div id="public-mobile-nav" class="mobile-nav-panel">
+        <nav class="mobile-nav-links" aria-label="Mobile navigation">
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileMenu()"
+          >
+            Home
+          </a>
+          <a
+            routerLink="/items"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileMenu()"
+          >
+            Browse Items
+          </a>
+          <a
+            routerLink="/about"
+            routerLinkActive="active"
+            (click)="closeMobileMenu()"
+          >
+            About
+          </a>
+
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/items/my" routerLinkActive="active" (click)="closeMobileMenu()">
+              My Workspace
+            </a>
+            <a routerLink="/items/report-lost" routerLinkActive="active" (click)="closeMobileMenu()">
+              Report Lost
+            </a>
+            <a routerLink="/items/report-found" routerLinkActive="active" (click)="closeMobileMenu()">
+              Report Found
+            </a>
+            <a routerLink="/matching" routerLinkActive="active" (click)="closeMobileMenu()">
+              Smart Matches
+            </a>
+            <a routerLink="/claims" routerLinkActive="active" (click)="closeMobileMenu()">
+              Claims &amp; Handovers
+            </a>
+            <a routerLink="/notifications" routerLinkActive="active" (click)="closeMobileMenu()">
+              Notifications
+              @if (notificationService.unreadCount() > 0) {
+                <span class="mobile-badge">{{ notificationService.unreadCount() }}</span>
+              }
+            </a>
+            <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">
+              Profile
+            </a>
+            @if (authService.isAdmin()) {
+              <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">
+                Admin Console
+              </a>
+            }
+          }
+        </nav>
+
+        <div class="mobile-auth-actions">
+          @if (authService.isAuthenticated()) {
+            <button
+              type="button"
+              class="mobile-login-link w-full"
+              (click)="logout()"
+            >
+              Sign Out ({{ authService.user()?.fullName }})
+            </button>
+          } @else {
+            <a
+              routerLink="/login"
+              class="mobile-login-link"
+              (click)="closeMobileMenu()"
+            >
+              Login
+            </a>
+            <a
+              routerLink="/register"
+              class="mobile-register-link"
+              (click)="closeMobileMenu()"
+            >
+              Get Started
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </header>
+
+  <main class="page-content">
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <app-logo size="sm" />
+
+      <p>
+        Reuniting people with their lost belongings across Nepal through smart matching.
+      </p>
+
+      <span>&copy; {{ currentYear }} KhojNepal. All rights reserved.</span>
+    </div>
+  </footer>
+</div>

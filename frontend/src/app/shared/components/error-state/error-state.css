@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 36px 20px;
+  border-color: var(--color-danger-border, #fecaca);
+  text-align: center;
+}
+
+.error-state-compact {
+  gap: 12px;
+  padding: 24px 16px;
+}
+
+.error-state-icon {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-danger-soft, #fef2f2);
+  color: var(--color-danger, #dc2626);
+}
+
+.error-state-compact .error-state-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.error-state-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 460px;
+}
+
+.error-code-pill {
+  padding: 3px 10px;
+  border: 1px solid var(--color-danger-border, #fecaca);
+  border-radius: 999px;
+  background: var(--color-danger-soft, #fef2f2);
+  color: var(--color-danger, #dc2626);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.error-state-title {
+  margin: 0;
+  color: var(--color-text, #1f2937);
+  font-family: var(--font-heading, 'Manrope', sans-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.error-state-message {
+  margin: 0;
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.error-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.error-state-actions:empty {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .error-state {
+    padding: 44px 32px;
+  }
+
+  .error-state-compact {
+    padding: 28px 24px;
+  }
+}

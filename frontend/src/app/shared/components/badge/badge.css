@@ -1,0 +1,87 @@
+
+:host {
+  display: inline-flex;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-sm {
+  padding: 3px 8px;
+  font-size: 0.6875rem;
+}
+
+.badge-md {
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+
+.badge-lost {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.badge-found {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.badge-pending {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.badge-verified {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.badge-returned {
+  background: #eff6ff;
+  color: #175cd3;
+}
+
+.badge-rejected {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.badge-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+:host-context([data-theme='dark']) .badge-lost,
+:host-context([data-theme='dark']) .badge-rejected {
+  background: #451f27;
+  color: #fda4af;
+}
+
+:host-context([data-theme='dark']) .badge-found,
+:host-context([data-theme='dark']) .badge-verified {
+  background: #123b32;
+  color: #6ee7b7;
+}
+
+:host-context([data-theme='dark']) .badge-pending {
+  background: #45351b;
+  color: #fcd34d;
+}
+
+:host-context([data-theme='dark']) .badge-returned {
+  background: #1e3456;
+  color: #93c5fd;
+}
+
+:host-context([data-theme='dark']) .badge-neutral {
+  background: #26364d;
+  color: #cbd5e1;
+}

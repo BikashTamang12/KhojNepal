@@ -6,6 +6,7 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
+  type Relation,
 } from 'typeorm';
 import { Item } from './item.entity.js';
 
@@ -20,7 +21,7 @@ export class ItemImage {
 
   @ManyToOne(() => Item, (item) => item.images, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'item_id' })
-  item: Item;
+  item: Relation<Item>;
 
   @Column({ name: 'file_path', type: 'varchar', length: 500 })
   filePath: string;

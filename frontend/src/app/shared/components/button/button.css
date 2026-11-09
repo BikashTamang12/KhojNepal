@@ -1,0 +1,130 @@
+:host {
+  display: inline-block;
+}
+
+:host:has(.btn-full) {
+  display: block;
+  width: 100%;
+}
+
+.btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-button, 8px);
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 120ms ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-sm {
+  min-height: 36px;
+  padding: 7px 14px;
+  font-size: 0.8125rem;
+}
+
+.btn-md {
+  min-height: var(--control-min-height, 44px);
+  padding: 10px 18px;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  min-height: 48px;
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: var(--color-brand-navy, #142d4e);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1c3e68;
+}
+
+.btn-secondary {
+  background: #0b7a6b;
+  color: #ffffff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #096458;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-brand-navy, #142d4e);
+  border-color: var(--color-border, #e2e8f0);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--color-hover, #f1f5f9);
+  border-color: var(--color-primary, #0f9d8a);
+}
+
+.btn-danger {
+  background: var(--color-brand-crimson, #c83d4d);
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #a92f3e;
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgb(15 157 138 / 30%);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-spin 650ms linear infinite;
+}
+
+:host-context([data-theme='dark']) .btn-primary {
+  background: var(--color-primary, #2dd4bf);
+  color: var(--color-primary-foreground, #0b1220);
+}
+
+:host-context([data-theme='dark']) .btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover, #5eead4);
+}
+
+:host-context([data-theme='dark']) .btn-outline {
+  color: var(--color-text, #f1f5f9);
+  border-color: var(--color-border, #26364d);
+}
+
+:host-context([data-theme='dark']) .btn-outline:hover:not(:disabled) {
+  background: var(--color-hover, #1c2b41);
+  border-color: var(--color-primary, #2dd4bf);
+}

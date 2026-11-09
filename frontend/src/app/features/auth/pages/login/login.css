@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.auth-section {
+  min-height: calc(100vh - 180px);
+  display: grid;
+  place-items: center;
+  padding: 40px var(--space-page-x, 16px);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+}

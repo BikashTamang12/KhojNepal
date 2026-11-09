@@ -1,0 +1,55 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--color-brand-navy, #142d4e);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.logo-mark {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.logo-name {
+  font-size: 1.25rem;
+  letter-spacing: -0.7px;
+}
+
+.logo-accent {
+  color: var(--color-primary, #0b7a6b);
+}
+
+.logo-sm .logo-mark {
+  width: 30px;
+  height: 30px;
+}
+
+.logo-sm .logo-name {
+  font-size: 1rem;
+}
+
+.logo-lg .logo-mark {
+  width: 52px;
+  height: 52px;
+}
+
+.logo-lg .logo-name {
+  font-size: 1.6rem;
+}
+
+:host-context([data-theme='dark']) .logo {
+  color: #f1f5f9;
+}
+
+:host-context(.sidebar-brand) .logo {
+  color: #142d4e;
+}
+
+:host-context(.sidebar-brand) .logo-accent {
+  color: #0b7a6b;
+}

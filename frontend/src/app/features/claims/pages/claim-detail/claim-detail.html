@@ -1,1 +1,334 @@
-<p>claim-detail works!</p>
+<div class="mb-4">
+  <a
+    routerLink="/claims"
+    class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-[var(--color-primary)]"
+  >
+    <app-icon name="arrow-left" sizeClass="w-4 h-4" />
+    <span>Back to Claims</span>
+  </a>
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="detail" [count]="1" />
+} @else if (error() || !claim()) {
+  <app-error-state
+    title="Claim unavailable"
+    [message]="error() || 'Could not find this claim.'"
+    (retry)="retry()"
+  />
+} @else {
+  @let current = claim()!;
+
+  <app-page-header
+    eyebrow="Verification Case"
+    [title]="'Claim on ' + (current.item?.title || 'Item Report')"
+    description="Two-stage verification between reporter and administrator, followed by confirmed handover."
+  >
+    <div page-actions class="flex flex-wrap gap-2">
+      <app-badge [variant]="badgeVariant(current.finderStatus)" [label]="'Reporter: ' + formatLabel(current.finderStatus)" />
+      <app-badge [variant]="badgeVariant(current.status)" [label]="'Admin: ' + formatLabel(current.status)" />
+    </div>
+  </app-page-header>
+
+  <div class="claim-layout">
+    <!-- Left Main Column -->
+    <div class="flex flex-col gap-5 min-w-0">
+      <article class="surface-card-padded">
+        <h2 class="text-lg font-bold mb-4">Claim Evidence &amp; Statement</h2>
+
+        <div class="flex flex-col gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-secondary block mb-1">
+              Claimant Explanation
+            </span>
+            <p class="m-0 leading-relaxed whitespace-pre-line">{{ current.explanation }}</p>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--color-border)]">
+            <span class="text-xs font-bold uppercase tracking-wider text-secondary block mb-1">
+              Supporting Evidence
+            </span>
+            <p class="m-0 leading-relaxed whitespace-pre-line">{{ current.evidenceDescription }}</p>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--color-border)] flex flex-wrap gap-6 text-sm">
+            <div>
+              <span class="text-xs text-secondary block">Claimant</span>
+              <strong>{{ current.claimant?.fullName || 'Member' }}</strong>
+              @if (current.status === 'APPROVED' && current.claimant?.phone) {
+                <span class="block text-xs text-secondary">{{ current.claimant?.phone }}</span>
+              }
+              @if (current.status === 'APPROVED' && current.claimant?.email) {
+                <span class="block text-xs text-secondary">{{ current.claimant?.email }}</span>
+              }
+            </div>
+            <div>
+              <span class="text-xs text-secondary block">Submitted On</span>
+              <strong>{{ formatTime(current.createdAt) }}</strong>
+            </div>
+          </div>
+
+          @if (current.finderNotes) {
+            <div class="alert-banner alert-banner-info">
+              <app-icon name="info" sizeClass="w-5 h-5 shrink-0" />
+              <div>
+                <strong class="block">Reporter Notes</strong>
+                <span>{{ current.finderNotes }}</span>
+              </div>
+            </div>
+          }
+
+          @if (current.adminNotes) {
+            <div class="alert-banner" [class.alert-banner-success]="current.status === 'APPROVED'" [class.alert-banner-danger]="current.status === 'REJECTED'" [class.alert-banner-info]="current.status === 'PENDING'">
+              <app-icon name="shield-check" sizeClass="w-5 h-5 shrink-0" />
+              <div>
+                <strong class="block">Admin Review Notes</strong>
+                <span>{{ current.adminNotes }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <!-- Reporter Review Card -->
+      @if (isItemReporter() && current.status === 'PENDING') {
+        <form [formGroup]="finderForm" class="surface-card-padded flex flex-col gap-4">
+          <div>
+            <h2 class="text-lg font-bold mb-1">Reporter Verification</h2>
+            <p class="text-sm text-secondary m-0">
+              Confirm whether the evidence provided matches the actual item details before administrator review.
+            </p>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="finder-notes">Verification Notes (Optional)</label>
+            <textarea
+              id="finder-notes"
+              class="form-textarea"
+              rows="2"
+              placeholder="Explain why you confirm or dispute this claim..."
+              formControlName="finderNotes"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <app-button
+              type="button"
+              variant="secondary"
+              [loading]="busyFinder()"
+              (click)="submitFinderReview('CONFIRMED')"
+            >
+              Confirm Match
+            </app-button>
+            <app-button
+              type="button"
+              variant="danger"
+              [loading]="busyFinder()"
+              (click)="submitFinderReview('DISPUTED')"
+            >
+              Dispute Claim
+            </app-button>
+          </div>
+        </form>
+      }
+
+      <!-- Admin Decision Card -->
+      @if (authService.isAdmin() && current.status === 'PENDING') {
+        <form [formGroup]="adminForm" class="surface-card-padded flex flex-col gap-4">
+          <div>
+            <h2 class="text-lg font-bold mb-1">Administrator Decision</h2>
+            <p class="text-sm text-secondary m-0">
+              Approving unlocks private contact details, auto-rejects competing pending claims, and enables handover scheduling.
+            </p>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="admin-notes">Admin Decision Notes (Optional)</label>
+            <textarea
+              id="admin-notes"
+              class="form-textarea"
+              rows="2"
+              placeholder="Reason for approval or rejection..."
+              formControlName="adminNotes"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <app-button
+              type="button"
+              variant="primary"
+              [loading]="busyAdmin()"
+              (click)="submitAdminReview('APPROVED')"
+            >
+              Approve Claim
+            </app-button>
+            <app-button
+              type="button"
+              variant="danger"
+              [loading]="busyAdmin()"
+              (click)="submitAdminReview('REJECTED')"
+            >
+              Reject Claim
+            </app-button>
+          </div>
+        </form>
+      }
+
+      <!-- Handover Coordination Section (once Approved) -->
+      @if (current.status === 'APPROVED') {
+        <section class="surface-card-padded flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="text-lg font-bold m-0">Safe Item Handover</h2>
+            @if (current.handover) {
+              <app-badge
+                [variant]="badgeVariant(current.handover.confirmationStatus)"
+                [label]="formatLabel(current.handover.confirmationStatus)"
+              />
+            }
+          </div>
+
+          @if (!current.handover) {
+            <form [formGroup]="handoverForm" (ngSubmit)="scheduleHandover()" class="flex flex-col gap-4">
+              <p class="text-sm text-secondary m-0">
+                Schedule a safe, public meeting place (e.g., Ward Office, Police Desk, or Main Chowk) to exchange the item.
+              </p>
+
+              <div class="form-grid">
+                <div class="form-grid-full">
+                  <app-input
+                    id="handover-location"
+                    label="Meeting Location"
+                    placeholder="e.g. Durbar Marg Police Desk, Kathmandu"
+                    [required]="true"
+                    formControlName="handoverLocation"
+                  />
+                </div>
+
+                <app-input
+                  id="handover-at"
+                  type="datetime-local"
+                  label="Preferred Date & Time (Optional)"
+                  formControlName="handoverAt"
+                />
+
+                <div class="field-group form-grid-full">
+                  <label class="field-label" for="handover-notes">Notes (Optional)</label>
+                  <textarea
+                    id="handover-notes"
+                    class="form-textarea"
+                    rows="2"
+                    placeholder="Any coordination instructions..."
+                    formControlName="notes"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div>
+                <app-button type="submit" variant="primary" [loading]="busyHandover()">
+                  Schedule Handover
+                </app-button>
+              </div>
+            </form>
+          } @else {
+            @let h = current.handover;
+            <div class="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] flex flex-col gap-2 text-sm">
+              <div><strong>Meeting Location:</strong> {{ h.handoverLocation }}</div>
+              <div><strong>Scheduled / Completed At:</strong> {{ formatTime(h.handoverAt || h.createdAt) }}</div>
+              @if (h.notes) {
+                <div><strong>Notes:</strong> {{ h.notes }}</div>
+              }
+            </div>
+
+            @if (h.confirmationStatus === 'PENDING') {
+              <form [formGroup]="handoverActionNotesForm" class="flex flex-col gap-3">
+                <div class="field-group">
+                  <label class="field-label" for="handover-action-notes">
+                    Completion / Cancellation Note (Optional)
+                  </label>
+                  <input
+                    id="handover-action-notes"
+                    type="text"
+                    class="form-control"
+                    placeholder="Add confirmation or reason note..."
+                    formControlName="notes"
+                  />
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                  @if (canConfirmHandover()) {
+                    <app-button
+                      type="button"
+                      variant="secondary"
+                      [loading]="busyHandover()"
+                      (click)="confirmHandover()"
+                    >
+                      Confirm Item Received
+                    </app-button>
+                  }
+                  @if (canCancelHandover()) {
+                    <app-button
+                      type="button"
+                      variant="danger"
+                      [disabled]="busyHandover()"
+                      (click)="cancelDialogOpen.set(true)"
+                    >
+                      Cancel Handover
+                    </app-button>
+                  }
+                </div>
+              </form>
+            }
+          }
+        </section>
+      }
+    </div>
+
+    <!-- Right Item Sidebar -->
+    @if (current.item; as item) {
+      <aside class="surface-card-padded flex flex-col gap-3 h-fit">
+        <span class="text-xs font-bold uppercase tracking-wider text-secondary">Linked Item</span>
+
+        @if (getItemImage(current)) {
+          <img [src]="getItemImage(current)" [alt]="item.title" class="w-full h-44 object-cover rounded-lg border border-[var(--color-border)]" />
+        }
+
+        <div class="flex flex-wrap gap-2">
+          <app-badge [variant]="item.reportType === 'FOUND' ? 'found' : 'lost'" [label]="item.reportType" size="sm" />
+          <app-badge [variant]="badgeVariant(item.status)" [label]="formatLabel(item.status)" size="sm" />
+        </div>
+
+        <h2 class="text-lg font-bold m-0">{{ item.title }}</h2>
+        <p class="text-xs text-secondary m-0">{{ formatLocation(current) }}</p>
+
+        @if (current.status === 'APPROVED' && item.contactInfo) {
+          <div class="alert-banner alert-banner-success mt-2">
+            <app-icon name="check-circle" sizeClass="w-4 h-4 shrink-0" />
+            <div class="text-xs">
+              <strong class="block">Reporter Contact</strong>
+              <span>{{ item.contactInfo }}</span>
+            </div>
+          </div>
+        }
+
+        <a
+          [routerLink]="['/items', item.id]"
+          class="inline-flex items-center justify-center gap-1.5 min-h-[40px] px-4 mt-2 rounded-lg border border-[var(--color-border)] text-sm font-semibold hover:bg-[var(--color-hover)]"
+        >
+          <span>View Full Item Report</span>
+          <app-icon name="arrow-right" sizeClass="w-4 h-4" />
+        </a>
+      </aside>
+    }
+  </div>
+}
+
+<app-dialog
+  [open]="cancelDialogOpen()"
+  title="Cancel scheduled handover?"
+  description="Both parties will be notified that this handover was cancelled."
+  variant="warning"
+  confirmLabel="Cancel Handover"
+  [loading]="busyHandover()"
+  (openChange)="cancelDialogOpen.set($event)"
+  (confirmed)="executeCancelHandover()"
+/>
