@@ -11,4 +11,5 @@ import { RouterLink } from '@angular/router';
 export class Logo {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() showText = true;
+  @Input() route: string | string[] = '/';
 }

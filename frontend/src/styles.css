@@ -23,7 +23,7 @@
 @theme {
   /* Brand colors */
   --color-brand-navy: #142d4e;
-  --color-brand-teal: #0f9d8a;
+  --color-brand-teal: #0b7a6b;
   --color-brand-crimson: #c83d4d;
   --color-brand-amber: #f4b740;
 
@@ -56,18 +56,18 @@
   --color-surface-muted: #f1f5f9;
 
   --color-text: #1f2937;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
+  --color-text-secondary: #475569;
+  --color-text-muted: #526175;
 
   --color-border: #e2e8f0;
   --color-input-background: #ffffff;
   --color-hover: #f1f5f9;
 
-  --color-primary: #0f9d8a;
-  --color-primary-hover: #0b8575;
+  --color-primary: #0b7a6b;
+  --color-primary-hover: #096458;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #0f9d8a;
-  --color-primary-soft: rgba(15, 157, 138, 0.12);
+  --color-secondary: #0b7a6b;
+  --color-primary-soft: rgba(11, 122, 107, 0.11);
 
   --color-danger: #dc2626;
   --color-danger-soft: #fef2f2;
@@ -89,9 +89,9 @@
   --color-sidebar-text: #e2e8f0;
   --color-sidebar-muted: #a7b4c8;
   --color-sidebar-hover: #203c60;
-  --color-sidebar-active: #0f9d8a;
+  --color-sidebar-active: #0b7a6b;
 
-  --color-focus-ring: #0f9d8a;
+  --color-focus-ring: #0b7a6b;
 
   --color-overlay: rgb(15 23 42 / 55%);
   --color-skeleton: #e2e8f0;
@@ -116,6 +116,7 @@
 [data-theme='dark'] {
   color-scheme: dark;
 
+  --color-brand-teal: #2dd4bf;
   --color-background: #0b1220;
   --color-surface: #111c2e;
   --color-surface-elevated: #19263a;
@@ -155,7 +156,7 @@
   --color-sidebar-text: #f1f5f9;
   --color-sidebar-muted: #a7b4c8;
   --color-sidebar-hover: #1c2b41;
-  --color-sidebar-active: #0f9d8a;
+  --color-sidebar-active: #0b7a6b;
 
   --color-focus-ring: #2dd4bf;
 

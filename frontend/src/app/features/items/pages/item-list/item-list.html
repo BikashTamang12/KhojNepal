@@ -97,11 +97,11 @@
             <span class="text-xs text-secondary">{{ item.category?.name || 'General' }}</span>
           </div>
 
-          <h3 class="text-lg font-bold mb-1">
+          <h2 class="text-lg font-bold mb-1">
             <a [routerLink]="['/items', item.id]" class="hover:text-[var(--color-primary)]">
               {{ item.title }}
             </a>
-          </h3>
+          </h2>
 
           <p class="text-secondary text-sm m-0 mb-2 line-clamp-2">{{ item.description }}</p>
 

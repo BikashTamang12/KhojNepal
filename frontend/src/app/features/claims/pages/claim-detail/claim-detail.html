@@ -297,7 +297,7 @@
           <app-badge [variant]="badgeVariant(item.status)" [label]="formatLabel(item.status)" size="sm" />
         </div>
 
-        <h3 class="text-lg font-bold m-0">{{ item.title }}</h3>
+        <h2 class="text-lg font-bold m-0">{{ item.title }}</h2>
         <p class="text-xs text-secondary m-0">{{ formatLocation(current) }}</p>
 
         @if (current.status === 'APPROVED' && item.contactInfo) {

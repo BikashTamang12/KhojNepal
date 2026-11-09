@@ -59,12 +59,12 @@
 }
 
 .btn-secondary {
-  background: var(--color-brand-teal, #0f9d8a);
+  background: #0b7a6b;
   color: #ffffff;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #0c8374;
+  background: #096458;
 }
 
 .btn-outline {

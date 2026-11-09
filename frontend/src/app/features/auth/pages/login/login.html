@@ -11,6 +11,30 @@
       </p>
     </div>
 
+    @if (authService.isAuthenticated() && authService.user(); as currentUser) {
+      <div class="mb-5 p-3.5 rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-soft)] text-[var(--color-text)] text-xs flex flex-col gap-2">
+        <p class="m-0">
+          Currently signed in as <strong>{{ currentUser.fullName }}</strong> ({{ currentUser.role }}).
+          Sign in below to switch accounts.
+        </p>
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            [routerLink]="authService.isAdmin() ? '/admin' : '/items/my'"
+            class="font-semibold text-[var(--color-primary)] hover:underline"
+          >
+            {{ authService.isAdmin() ? 'Go to Admin Console' : 'Go to My Workspace' }}
+          </a>
+          <button
+            type="button"
+            class="font-semibold text-[var(--color-danger)] bg-transparent border-0 p-0 hover:underline"
+            (click)="signOutCurrent()"
+          >
+            Sign Out First
+          </button>
+        </div>
+      </div>
+    }
+
     @if (errorMessage()) {
       <div class="alert-banner alert-banner-danger mb-5" role="alert">
         <app-icon name="alert-circle" sizeClass="w-5 h-5 shrink-0" />

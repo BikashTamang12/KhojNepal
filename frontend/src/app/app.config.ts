@@ -11,6 +11,7 @@ import { routes } from './app.routes';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { ThemeService } from './core/services/theme';
 import { AuthService } from './features/auth/services/auth';
 
 export const appConfig: ApplicationConfig = {
@@ -23,6 +24,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor]),
     ),
-    provideAppInitializer(() => inject(AuthService).restoreSession()),
+    provideAppInitializer(() => {
+      inject(ThemeService);
+      return inject(AuthService).restoreSession();
+    }),
   ],
 };

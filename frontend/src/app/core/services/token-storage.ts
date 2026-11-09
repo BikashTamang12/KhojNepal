@@ -1,4 +1,5 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import type { User } from '../models';
 
 const TOKEN_STORAGE_KEY = 'khojnepal_access_token';
@@ -8,6 +9,9 @@ const USER_STORAGE_KEY = 'khojnepal_user';
   providedIn: 'root',
 })
 export class TokenStorage {
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+
   private readonly tokenSignal = signal<string | null>(this.readStoredToken());
   private readonly userSignal = signal<User | null>(this.readStoredUser());
 
@@ -18,6 +22,24 @@ export class TokenStorage {
     () => Boolean(this.tokenSignal() && this.userSignal()),
   );
   readonly isAdmin = computed(() => this.userSignal()?.role === 'ADMIN');
+
+  constructor() {
+    const win = this.document.defaultView;
+    if (win) {
+      const onStorage = (event: StorageEvent): void => {
+        if (
+          event.key === null ||
+          event.key === TOKEN_STORAGE_KEY ||
+          event.key === USER_STORAGE_KEY
+        ) {
+          this.tokenSignal.set(this.readStoredToken());
+          this.userSignal.set(this.readStoredUser());
+        }
+      };
+      win.addEventListener('storage', onStorage);
+      this.destroyRef.onDestroy(() => win.removeEventListener('storage', onStorage));
+    }
+  }
 
   getToken(): string | null {
     return this.tokenSignal();

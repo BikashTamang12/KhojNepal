@@ -14,7 +14,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isApiRequest =
     req.url.startsWith(environment.apiUrl) || req.url.startsWith('/api');
 
-  if (!isApiRequest || req.headers.has('Authorization')) {
+  const isAuthCredentialEndpoint =
+    req.url.endsWith('/auth/login') || req.url.endsWith('/auth/register');
+
+  if (!isApiRequest || isAuthCredentialEndpoint || req.headers.has('Authorization')) {
     return next(req);
   }
 

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { extractErrorMessage } from '../../../../core/models';
+import { type UserRole, extractErrorMessage } from '../../../../core/models';
 import { ToastService } from '../../../../core/services/toast';
 import { Button } from '../../../../shared/components/button/button';
 import { Icon } from '../../../../shared/components/icon/icon';
@@ -17,7 +17,7 @@ import { AuthService } from '../../services/auth';
 })
 export class Login {
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
+  readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toastService = inject(ToastService);
@@ -49,6 +49,11 @@ export class Login {
     return '';
   }
 
+  signOutCurrent(): void {
+    this.authService.logout('');
+    this.toastService.info('Signed out. You can now sign in with another account.');
+  }
+
   submit(): void {
     this.errorMessage.set(null);
     if (this.form.invalid) {
@@ -63,11 +68,11 @@ export class Login {
       next: ({ user }) => {
         this.submitting.set(false);
         this.toastService.success(`Welcome back, ${user.fullName}!`, 'Signed In');
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        const fallback = user.role === 'ADMIN' ? '/admin' : '/items/my';
-        void this.router.navigateByUrl(
-          returnUrl && returnUrl.startsWith('/') ? returnUrl : fallback,
+        const targetUrl = this.resolvePostLoginUrl(
+          this.route.snapshot.queryParamMap.get('returnUrl'),
+          user.role,
         );
+        void this.router.navigateByUrl(targetUrl, { replaceUrl: true });
       },
       error: (err: unknown) => {
         this.submitting.set(false);
@@ -76,5 +81,24 @@ export class Login {
         );
       },
     });
+  }
+
+  private resolvePostLoginUrl(returnUrl: string | null, role: UserRole): string {
+    const fallback = role === 'ADMIN' ? '/admin' : '/items/my';
+    if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      return fallback;
+    }
+    if (
+      returnUrl === '/login' ||
+      returnUrl.startsWith('/login?') ||
+      returnUrl === '/register' ||
+      returnUrl.startsWith('/register?')
+    ) {
+      return fallback;
+    }
+    if (role !== 'ADMIN' && (returnUrl === '/admin' || returnUrl.startsWith('/admin/'))) {
+      return fallback;
+    }
+    return returnUrl;
   }
 }

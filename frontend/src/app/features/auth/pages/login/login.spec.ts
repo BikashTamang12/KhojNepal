@@ -97,7 +97,64 @@ describe('Login Page', () => {
     expect(toastService.toasts().some((t) => t.title === 'Signed In')).toBe(
       true,
     );
-    expect(navSpy).toHaveBeenCalledWith('/claims');
+    expect(navSpy).toHaveBeenCalledWith('/claims', { replaceUrl: true });
+  });
+
+  it('ignores non-admin returnUrl targeting /admin and allows switching accounts cleanly', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [Login],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: convertToParamMap({ returnUrl: '/admin/users' }),
+            },
+          },
+        },
+      ],
+    });
+
+    httpTesting = TestBed.inject(HttpTestingController);
+    tokenStorage = TestBed.inject(TokenStorage);
+    toastService = TestBed.inject(ToastService);
+    router = TestBed.inject(Router);
+
+    tokenStorage.setSession('old-admin-jwt', {
+      ...mockUser,
+      id: 'admin-old',
+      role: 'ADMIN',
+      fullName: 'Existing Admin',
+    });
+
+    const fixture = TestBed.createComponent(Login);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Currently signed in as Existing Admin',
+    );
+
+    const component = fixture.componentInstance;
+    const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    component.form.setValue({
+      email: 'bikash@example.com',
+      password: 'password123',
+    });
+    component.submit();
+
+    httpTesting
+      .expectOne(`${environment.apiUrl}/auth/login`)
+      .flush({ accessToken: 'tok-user', user: mockUser });
+    httpTesting
+      .expectOne(`${environment.apiUrl}/notifications/unread-count`)
+      .flush({ unreadCount: 0 });
+
+    expect(tokenStorage.getToken()).toBe('tok-user');
+    expect(navSpy).toHaveBeenCalledWith('/items/my', { replaceUrl: true });
   });
 
   it('displays server error alert when credentials fail', () => {

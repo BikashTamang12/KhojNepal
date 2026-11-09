@@ -113,7 +113,7 @@ export class Register {
           `Account created! Welcome to KhojNepal, ${user.fullName}.`,
           'Registration Complete',
         );
-        void this.router.navigateByUrl('/items/my');
+        void this.router.navigateByUrl('/items/my', { replaceUrl: true });
       },
       error: (err: unknown) => {
         this.submitting.set(false);

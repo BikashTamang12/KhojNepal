@@ -185,6 +185,7 @@
   letter-spacing: 1.5px;
 }
 
+.home-page .visual-card-header h2,
 .home-page .visual-card-header h3 {
   margin: 7px 0 0;
   color: var(--color-text);
@@ -542,7 +543,7 @@
 /* Call to Action */
 .home-page .cta-section {
   padding: 70px 0;
-  background: var(--color-primary);
+  background: #0b6e61;
 }
 
 .home-page .cta-container {
@@ -553,7 +554,7 @@
 }
 
 .home-page .cta-section .section-eyebrow {
-  color: #8de4d6;
+  color: #e6fffa;
 }
 
 .home-page .cta-container h2 {
@@ -567,7 +568,7 @@
 .home-page .cta-container p {
   max-width: 600px;
   margin: 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: #f8fafc;
   font-size: 14px;
   line-height: 1.8;
 }
@@ -577,7 +578,7 @@
   padding: 15px 20px;
   border-radius: 8px;
   background: #ffffff;
-  color: #0f9d8a;
+  color: #095d52;
   font-size: 13px;
   font-weight: 800;
   text-align: center;

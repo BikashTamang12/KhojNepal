@@ -22,6 +22,9 @@ let nextInputId = 0;
   standalone: true,
   templateUrl: './input.html',
   styleUrl: './input.css',
+  host: {
+    '[attr.id]': 'null',
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

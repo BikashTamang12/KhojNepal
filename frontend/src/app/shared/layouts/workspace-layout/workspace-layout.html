@@ -6,9 +6,9 @@
   <aside class="shell-sidebar" [class.open]="sidebarOpen()" aria-label="Workspace navigation">
     <div class="sidebar-top">
       <div class="flex items-center justify-between gap-2">
-        <a routerLink="/" class="sidebar-brand" (click)="closeSidebar()">
+        <div class="sidebar-brand" (click)="closeSidebar()">
           <app-logo size="sm" />
-        </a>
+        </div>
         <button
           type="button"
           class="sidebar-close-btn touch-target"

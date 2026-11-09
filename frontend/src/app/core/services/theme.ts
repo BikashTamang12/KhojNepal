@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -10,11 +10,31 @@ const THEME_STORAGE_KEY = 'khojnepal_theme';
 })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly theme = signal<ThemeMode>(this.readInitialTheme());
 
   constructor() {
     this.applyTheme(this.theme());
+
+    const win = this.document.defaultView;
+    if (win) {
+      const onStorage = (event: StorageEvent): void => {
+        if (event.key === null) {
+          this.theme.set('light');
+          this.applyTheme('light');
+          return;
+        }
+        if (event.key === THEME_STORAGE_KEY) {
+          const nextTheme: ThemeMode =
+            event.newValue === 'dark' ? 'dark' : 'light';
+          this.theme.set(nextTheme);
+          this.applyTheme(nextTheme);
+        }
+      };
+      win.addEventListener('storage', onStorage);
+      this.destroyRef.onDestroy(() => win.removeEventListener('storage', onStorage));
+    }
   }
 
   setTheme(theme: ThemeMode): void {
@@ -44,6 +64,10 @@ export class ThemeService {
       }
     } catch {
       // Ignore storage restrictions
+    }
+    const attrTheme = this.document.documentElement?.getAttribute('data-theme');
+    if (attrTheme === 'dark' || attrTheme === 'light') {
+      return attrTheme;
     }
     return 'light';
   }

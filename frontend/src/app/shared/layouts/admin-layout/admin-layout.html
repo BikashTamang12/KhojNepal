@@ -6,9 +6,9 @@
   <aside class="shell-sidebar" [class.open]="sidebarOpen()" aria-label="Admin navigation">
     <div class="sidebar-top">
       <div class="flex items-center justify-between gap-2">
-        <a routerLink="/admin" class="sidebar-brand" (click)="closeSidebar()">
-          <app-logo size="sm" />
-        </a>
+        <div class="sidebar-brand" (click)="closeSidebar()">
+          <app-logo size="sm" route="/admin" />
+        </div>
         <button
           type="button"
           class="sidebar-close-btn touch-target"

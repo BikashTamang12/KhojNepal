@@ -87,5 +87,10 @@ describe('authInterceptor', () => {
       'Bearer override-token',
     );
     overrideReq.flush({});
+
+    http.post(`${environment.apiUrl}/auth/login`, { email: 'a@b.com', password: 'pw' }).subscribe();
+    const loginReq = httpTesting.expectOne(`${environment.apiUrl}/auth/login`);
+    expect(loginReq.request.headers.has('Authorization')).toBe(false);
+    loginReq.flush({});
   });
 });
