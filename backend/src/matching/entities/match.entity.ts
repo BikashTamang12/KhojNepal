@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { Item } from '../../items/entities/item.entity.js';
 import { MatchStatus } from '../enums/match-status.enum.js';
+import { decimalTransformer } from '../../common/transformers/decimal.transformer.js';
 
 @Entity('matches')
 @Unique('UQ_matches_lost_found', ['lostItemId', 'foundItemId'])
@@ -37,20 +38,50 @@ export class Match {
   @JoinColumn({ name: 'found_item_id' })
   foundItem: Relation<Item>;
 
-  @Column({ name: 'text_score', type: 'decimal', precision: 5, scale: 4 })
+  @Column({
+    name: 'text_score',
+    type: 'decimal',
+    precision: 5,
+    scale: 4,
+    transformer: decimalTransformer,
+  })
   textScore: number;
 
-  @Column({ name: 'image_score', type: 'decimal', precision: 5, scale: 4 })
+  @Column({
+    name: 'image_score',
+    type: 'decimal',
+    precision: 5,
+    scale: 4,
+    transformer: decimalTransformer,
+  })
   imageScore: number;
 
-  @Column({ name: 'location_score', type: 'decimal', precision: 5, scale: 4 })
+  @Column({
+    name: 'location_score',
+    type: 'decimal',
+    precision: 5,
+    scale: 4,
+    transformer: decimalTransformer,
+  })
   locationScore: number;
 
-  @Column({ name: 'time_score', type: 'decimal', precision: 5, scale: 4 })
+  @Column({
+    name: 'time_score',
+    type: 'decimal',
+    precision: 5,
+    scale: 4,
+    transformer: decimalTransformer,
+  })
   timeScore: number;
 
   @Index()
-  @Column({ name: 'final_score', type: 'decimal', precision: 5, scale: 4 })
+  @Column({
+    name: 'final_score',
+    type: 'decimal',
+    precision: 5,
+    scale: 4,
+    transformer: decimalTransformer,
+  })
   finalScore: number;
 
   @Index()

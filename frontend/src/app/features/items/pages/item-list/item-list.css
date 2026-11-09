@@ -1,0 +1,57 @@
+:host {
+  display: block;
+}
+
+.report-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.report-thumb-wrap {
+  width: 100%;
+  height: 160px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  flex-shrink: 0;
+}
+
+.report-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.report-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .report-row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .report-thumb-wrap {
+    width: 112px;
+    height: 112px;
+  }
+
+  .report-actions {
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 140px;
+  }
+}

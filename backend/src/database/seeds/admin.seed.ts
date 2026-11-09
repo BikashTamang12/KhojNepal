@@ -39,8 +39,8 @@ export class AdminSeeder implements Seeder {
 
     await dataSource.query(
       `
-      INSERT INTO users (full_name, email, password_hash, role, created_at, updated_at)
-      VALUES ($1, $2, $3, 'ADMIN', NOW(), NOW());
+      INSERT INTO users (full_name, email, password_hash, role, is_active, is_verified, created_at, updated_at)
+      VALUES ($1, $2, $3, 'ADMIN', true, true, NOW(), NOW());
       `,
       [adminFullName, adminEmail, passwordHash],
     );

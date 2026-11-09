@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.claim-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .claim-layout {
+    grid-template-columns: minmax(0, 1.6fr) minmax(290px, 1fr);
+    align-items: start;
+  }
+}

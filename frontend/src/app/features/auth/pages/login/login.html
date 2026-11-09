@@ -1,1 +1,65 @@
-<p>login works!</p>
+<section class="auth-section">
+  <div class="surface-card-padded auth-card">
+    <div class="mb-6 text-center">
+      <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] mb-2">
+        <app-icon name="shield-check" sizeClass="w-4 h-4" />
+        Welcome Back
+      </span>
+      <h1 class="text-2xl font-extrabold mb-1">Sign in to KhojNepal</h1>
+      <p class="text-secondary m-0">
+        Access your reports, smart matches, claims, and notifications.
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert-banner alert-banner-danger mb-5" role="alert">
+        <app-icon name="alert-circle" sizeClass="w-5 h-5 shrink-0" />
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-4">
+      <app-input
+        id="login-email"
+        name="email"
+        type="email"
+        label="Email Address"
+        placeholder="you@example.com"
+        autocomplete="email"
+        [required]="true"
+        [error]="getFieldError('email')"
+        formControlName="email"
+      />
+
+      <app-input
+        id="login-password"
+        name="password"
+        type="password"
+        label="Password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        [required]="true"
+        [error]="getFieldError('password')"
+        formControlName="password"
+      />
+
+      <app-button
+        type="submit"
+        variant="primary"
+        size="lg"
+        [fullWidth]="true"
+        [loading]="submitting()"
+        class="mt-2"
+      >
+        Sign In
+      </app-button>
+    </form>
+
+    <p class="text-center text-secondary text-sm mt-6 mb-0">
+      New to KhojNepal?
+      <a routerLink="/register" class="font-semibold text-[var(--color-primary)] hover:underline">
+        Create an account
+      </a>
+    </p>
+  </div>
+</section>

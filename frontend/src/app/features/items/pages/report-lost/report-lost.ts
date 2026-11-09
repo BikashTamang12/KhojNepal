@@ -1,9 +1,49 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import {
+  type CreateItemPayload,
+  extractErrorMessage,
+} from '../../../../core/models';
+import { ToastService } from '../../../../core/services/toast';
+import { Icon } from '../../../../shared/components/icon/icon';
+import { PageHeader } from '../../../../shared/components/page-header/page-header';
+import { ItemReportForm } from '../../components/item-report-form/item-report-form';
+import { ItemService } from '../../services/item';
 
 @Component({
-  imports: [],
   selector: 'app-report-lost',
-  styleUrl: './report-lost.css',
+  standalone: true,
+  imports: [RouterLink, PageHeader, ItemReportForm, Icon],
   templateUrl: './report-lost.html',
+  styleUrl: './report-lost.css',
 })
-export class ReportLost {}
+export class ReportLost {
+  private readonly itemService = inject(ItemService);
+  private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
+
+  readonly submitting = signal(false);
+  readonly serverError = signal<string | null>(null);
+
+  handleSubmit(event: { payload: CreateItemPayload; files: File[] }): void {
+    this.serverError.set(null);
+    this.submitting.set(true);
+
+    this.itemService.createItem(event.payload, event.files).subscribe({
+      next: (created) => {
+        this.submitting.set(false);
+        this.toastService.success(
+          'Lost item reported! Smart matching is scanning for potential matches.',
+          'Report Published',
+        );
+        void this.router.navigate(['/items', created.id]);
+      },
+      error: (err: unknown) => {
+        this.submitting.set(false);
+        this.serverError.set(
+          extractErrorMessage(err, 'Failed to submit lost item report.'),
+        );
+      },
+    });
+  }
+}

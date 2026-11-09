@@ -1,1 +1,132 @@
-<p>claim-list works!</p>
+<app-page-header
+  eyebrow="Ownership Verification"
+  title="Claims & Handovers"
+  description="Track claims you submitted on items, review incoming claims on your reports, and complete scheduled handovers."
+>
+  <a
+    page-actions
+    routerLink="/items"
+    class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+  >
+    <app-icon name="search" sizeClass="w-4 h-4" />
+    <span>Browse Items</span>
+  </a>
+</app-page-header>
+
+<div class="surface-card-padded mb-6 flex flex-wrap gap-4">
+  <div class="field-group min-w-[170px] max-w-[220px]">
+    <label class="field-label" for="claim-role">Direction</label>
+    <select
+      id="claim-role"
+      class="form-select"
+      [(ngModel)]="roleFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="all">All Claims</option>
+      <option value="submitted">Submitted by Me</option>
+      <option value="received">Received on My Reports</option>
+    </select>
+  </div>
+
+  <div class="field-group min-w-[160px] max-w-[210px]">
+    <label class="field-label" for="claim-status">Admin Decision</label>
+    <select
+      id="claim-status"
+      class="form-select"
+      [(ngModel)]="statusFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="">All Decisions</option>
+      <option value="PENDING">Pending Admin Review</option>
+      <option value="APPROVED">Approved</option>
+      <option value="REJECTED">Rejected</option>
+    </select>
+  </div>
+
+  <div class="field-group min-w-[160px] max-w-[210px]">
+    <label class="field-label" for="claim-finder-status">Reporter Confirmation</label>
+    <select
+      id="claim-finder-status"
+      class="form-select"
+      [(ngModel)]="finderFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="">All</option>
+      <option value="PENDING">Awaiting Reporter</option>
+      <option value="CONFIRMED">Confirmed</option>
+      <option value="DISPUTED">Disputed</option>
+    </select>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="list" [count]="4" />
+} @else if (error()) {
+  <app-error-state
+    title="Unable to load claims"
+    [message]="error()!"
+    (retry)="loadClaims()"
+  />
+} @else if (claims().length === 0) {
+  <app-empty-state
+    icon="clipboard"
+    title="No claims found"
+    description="Browse reported items to submit a claim, or check incoming claims when someone responds to your report."
+    actionLabel="Browse Items"
+    actionRouterLink="/items"
+  />
+} @else {
+  <div class="flex flex-col gap-4">
+    @for (claim of claims(); track claim.id) {
+      <article class="surface-card-padded flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <app-badge
+              [variant]="isSubmittedByMe(claim) ? 'neutral' : 'returned'"
+              [label]="isSubmittedByMe(claim) ? 'Submitted by You' : 'Received Claim'"
+              size="sm"
+            />
+            <app-badge [variant]="badgeVariant(claim.status)" [label]="'Admin: ' + formatLabel(claim.status)" size="sm" />
+            <app-badge [variant]="badgeVariant(claim.finderStatus)" [label]="'Reporter: ' + formatLabel(claim.finderStatus)" size="sm" />
+            @if (claim.handover) {
+              <app-badge [variant]="badgeVariant(claim.handover.confirmationStatus)" [label]="'Handover: ' + formatLabel(claim.handover.confirmationStatus)" size="sm" />
+            }
+          </div>
+
+          <h3 class="text-lg font-bold mb-1">
+            <a [routerLink]="['/claims', claim.id]" class="hover:text-[var(--color-primary)]">
+              {{ claim.item?.title || 'Item Report' }}
+            </a>
+          </h3>
+
+          <p class="text-sm text-secondary m-0 mb-2 line-clamp-2">{{ claim.explanation }}</p>
+
+          <div class="flex flex-wrap gap-4 text-xs text-secondary">
+            <span>Submitted {{ formatDate(claim.createdAt) }}</span>
+            @if (claim.claimant) {
+              <span>Claimant: {{ claim.claimant.fullName }}</span>
+            }
+          </div>
+        </div>
+
+        <a
+          [routerLink]="['/claims', claim.id]"
+          class="inline-flex items-center justify-center gap-1.5 min-h-[40px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] text-sm font-semibold shrink-0"
+        >
+          <span>Manage Claim</span>
+          <app-icon name="arrow-right" sizeClass="w-4 h-4" />
+        </a>
+      </article>
+    }
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="totalClaims()"
+      itemLabel="claims"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

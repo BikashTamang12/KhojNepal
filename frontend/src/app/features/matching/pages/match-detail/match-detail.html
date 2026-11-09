@@ -1,1 +1,189 @@
-<p>match-detail works!</p>
+<div class="mb-4">
+  <a
+    routerLink="/matching"
+    class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-[var(--color-primary)]"
+  >
+    <app-icon name="arrow-left" sizeClass="w-4 h-4" />
+    <span>Back to Smart Matches</span>
+  </a>
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="detail" [count]="1" />
+} @else if (error() || !match()) {
+  <app-error-state
+    title="Match unavailable"
+    [message]="error() || 'Match record not found.'"
+    (retry)="retry()"
+  />
+} @else {
+  @let current = match()!;
+
+  <app-page-header
+    eyebrow="Match Analysis"
+    [title]="pct(current.finalScore) + '% Confidence Match'"
+    description="Review individual similarity signals across description text, image comparison, Nepal location proximity, and timeframe."
+  >
+    <div page-actions class="flex flex-wrap items-center gap-2.5">
+      <app-badge [variant]="badgeVariant(current.status)" [label]="formatLabel(current.status)" />
+      @if (counterpartItem(); as target) {
+        <a
+          [routerLink]="['/items', target.id]"
+          class="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] text-sm font-semibold"
+        >
+          <span>View &amp; Claim Item</span>
+          <app-icon name="arrow-right" sizeClass="w-4 h-4" />
+        </a>
+      }
+    </div>
+  </app-page-header>
+
+  <!-- Score Breakdown -->
+  <section class="surface-card-padded mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+      <h2 class="text-lg font-bold m-0">Multi-Signal Score Breakdown</h2>
+      <div class="flex flex-wrap gap-2">
+        @if (current.status !== 'ACCEPTED') {
+          <app-button variant="secondary" size="sm" (click)="promptDecision('ACCEPTED')">
+            Accept Match
+          </app-button>
+        }
+        @if (current.status !== 'REJECTED') {
+          <app-button variant="outline" size="sm" (click)="promptDecision('REJECTED')">
+            Dismiss Match
+          </app-button>
+        }
+      </div>
+    </div>
+
+    <div class="responsive-grid-2">
+      <div class="signal-box">
+        <div class="flex justify-between text-sm font-semibold mb-1.5">
+          <span>Text &amp; Attributes</span>
+          <span>{{ pct(current.textScore) }}%</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" [style.width.%]="pct(current.textScore)"></div>
+        </div>
+      </div>
+
+      <div class="signal-box">
+        <div class="flex justify-between text-sm font-semibold mb-1.5">
+          <span>Visual Image Similarity</span>
+          <span>{{ pct(current.imageScore) }}%</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" [style.width.%]="pct(current.imageScore)"></div>
+        </div>
+      </div>
+
+      <div class="signal-box">
+        <div class="flex justify-between text-sm font-semibold mb-1.5">
+          <span>Location Proximity</span>
+          <span>{{ pct(current.locationScore) }}%</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" [style.width.%]="pct(current.locationScore)"></div>
+        </div>
+      </div>
+
+      <div class="signal-box">
+        <div class="flex justify-between text-sm font-semibold mb-1.5">
+          <span>Time Window Alignment</span>
+          <span>{{ pct(current.timeScore) }}%</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" [style.width.%]="pct(current.timeScore)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Side-by-Side Comparison -->
+  <section class="responsive-grid-2">
+    @if (current.lostItem; as lost) {
+      <article class="surface-card-padded flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <app-badge variant="lost" label="LOST REPORT" />
+          <span class="text-xs text-secondary">{{ lost.category?.name }}</span>
+        </div>
+
+        <div class="compare-photo">
+          @if (itemImage(lost)) {
+            <img [src]="itemImage(lost)" [alt]="lost.title" />
+          } @else {
+            <app-icon name="photo" sizeClass="w-8 h-8 text-secondary" />
+          }
+        </div>
+
+        <h3 class="text-lg font-bold m-0">{{ lost.title }}</h3>
+        <p class="text-sm text-secondary m-0 leading-relaxed">{{ lost.description }}</p>
+
+        <div class="text-xs text-secondary flex flex-col gap-1.5 pt-2 border-t border-[var(--color-border)]">
+          <span><strong>Location:</strong> {{ itemLocation(lost) }}</span>
+          <span><strong>Date:</strong> {{ itemDate(lost) }}</span>
+          @if (lost.brand) { <span><strong>Brand:</strong> {{ lost.brand }}</span> }
+          @if (lost.color) { <span><strong>Color:</strong> {{ lost.color }}</span> }
+        </div>
+
+        <a
+          [routerLink]="['/items', lost.id]"
+          class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline mt-auto pt-2"
+        >
+          <span>Open Lost Item</span>
+          <app-icon name="arrow-right" sizeClass="w-4 h-4" />
+        </a>
+      </article>
+    }
+
+    @if (current.foundItem; as found) {
+      <article class="surface-card-padded flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <app-badge variant="found" label="FOUND REPORT" />
+          <span class="text-xs text-secondary">{{ found.category?.name }}</span>
+        </div>
+
+        <div class="compare-photo">
+          @if (itemImage(found)) {
+            <img [src]="itemImage(found)" [alt]="found.title" />
+          } @else {
+            <app-icon name="photo" sizeClass="w-8 h-8 text-secondary" />
+          }
+        </div>
+
+        <h3 class="text-lg font-bold m-0">{{ found.title }}</h3>
+        <p class="text-sm text-secondary m-0 leading-relaxed">{{ found.description }}</p>
+
+        <div class="text-xs text-secondary flex flex-col gap-1.5 pt-2 border-t border-[var(--color-border)]">
+          <span><strong>Location:</strong> {{ itemLocation(found) }}</span>
+          <span><strong>Date:</strong> {{ itemDate(found) }}</span>
+          @if (found.brand) { <span><strong>Brand:</strong> {{ found.brand }}</span> }
+          @if (found.color) { <span><strong>Color:</strong> {{ found.color }}</span> }
+        </div>
+
+        <a
+          [routerLink]="['/items', found.id]"
+          class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline mt-auto pt-2"
+        >
+          <span>Open Found Item</span>
+          <app-icon name="arrow-right" sizeClass="w-4 h-4" />
+        </a>
+      </article>
+    }
+  </section>
+}
+
+<app-dialog
+  [open]="!!pendingDecision()"
+  [title]="pendingDecision() === 'ACCEPTED' ? 'Accept this match?' : 'Dismiss this match?'"
+  [description]="
+    pendingDecision() === 'ACCEPTED'
+      ? 'This marks the pair as an accepted match and notifies the other party.'
+      : 'This marks the suggestion as not matching and notifies the other party.'
+  "
+  [variant]="pendingDecision() === 'REJECTED' ? 'warning' : 'default'"
+  [confirmLabel]="pendingDecision() === 'ACCEPTED' ? 'Accept Match' : 'Dismiss Match'"
+  [loading]="updating()"
+  (openChange)="!$event && pendingDecision.set(null)"
+  (confirmed)="executeDecision()"
+/>

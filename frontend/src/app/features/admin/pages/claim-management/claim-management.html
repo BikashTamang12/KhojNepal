@@ -1,0 +1,114 @@
+<app-page-header
+  eyebrow="Administration"
+  title="Claims Verification Queue"
+  description="Review submitted ownership claims alongside reporter confirmations before authorizing item handovers."
+/>
+
+<div class="surface-card-padded mb-6 flex flex-wrap gap-4">
+  <div class="field-group min-w-[170px] max-w-[220px]">
+    <label class="field-label" for="admin-claim-status">Admin Decision</label>
+    <select id="admin-claim-status" class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+      <option value="">All Decisions</option>
+      <option value="PENDING">Pending Review</option>
+      <option value="APPROVED">Approved</option>
+      <option value="REJECTED">Rejected</option>
+    </select>
+  </div>
+
+  <div class="field-group min-w-[170px] max-w-[220px]">
+    <label class="field-label" for="admin-claim-finder">Reporter Confirmation</label>
+    <select id="admin-claim-finder" class="form-select" [(ngModel)]="finderFilter" (change)="onFilterChange()">
+      <option value="">All</option>
+      <option value="PENDING">Pending</option>
+      <option value="CONFIRMED">Confirmed</option>
+      <option value="DISPUTED">Disputed</option>
+    </select>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="table" [count]="5" />
+} @else if (error()) {
+  <app-error-state
+    title="Failed to load claims queue"
+    [message]="error()!"
+    (retry)="loadClaims()"
+  />
+} @else if (claims().length === 0) {
+  <app-empty-state
+    icon="shield-check"
+    title="No claims matching filter"
+    description="Claims awaiting review or completed cases will appear here."
+  />
+} @else {
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item Report</th>
+          <th>Claimant</th>
+          <th>Reporter</th>
+          <th>Admin Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of claims(); track c.id) {
+          <tr>
+            <td>
+              <strong class="block">{{ c.item?.title || 'Item Report' }}</strong>
+              <span class="text-xs text-secondary line-clamp-1">{{ c.explanation }}</span>
+            </td>
+            <td>{{ c.claimant?.fullName || 'Member' }}</td>
+            <td>
+              <app-badge [variant]="badgeVariant(c.finderStatus)" [label]="formatLabel(c.finderStatus)" size="sm" />
+            </td>
+            <td>
+              <app-badge [variant]="badgeVariant(c.status)" [label]="formatLabel(c.status)" size="sm" />
+            </td>
+            <td class="whitespace-nowrap">{{ formatDate(c.createdAt) }}</td>
+            <td>
+              <div class="flex flex-wrap items-center gap-2">
+                <a
+                  [routerLink]="['/claims', c.id]"
+                  class="font-semibold text-[var(--color-primary)] hover:underline text-xs"
+                >
+                  Inspect Case
+                </a>
+                @if (c.status === 'PENDING') {
+                  <app-button
+                    size="sm"
+                    variant="secondary"
+                    [loading]="busyClaimId() === c.id"
+                    (click)="quickReview(c, 'APPROVED')"
+                  >
+                    Approve
+                  </app-button>
+                  <app-button
+                    size="sm"
+                    variant="danger"
+                    [loading]="busyClaimId() === c.id"
+                    (click)="quickReview(c, 'REJECTED')"
+                  >
+                    Reject
+                  </app-button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="total()"
+      itemLabel="claims"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

@@ -1,7 +1,6 @@
-
 <div class="input-field">
   @if (label) {
-    <label class="input-label" [for]="id">
+    <label class="input-label" [for]="controlId">
       {{ label }}
 
       @if (required) {
@@ -12,23 +11,28 @@
 
   <input
     class="form-input"
-    [id]="id"
-    [name]="name"
+    [id]="controlId"
+    [name]="name || controlId"
     [type]="type"
     [placeholder]="placeholder"
     [value]="value"
     [required]="required"
     [disabled]="disabled"
+    [attr.autocomplete]="autocomplete || null"
+    [attr.min]="min || null"
+    [attr.max]="max || null"
     [attr.aria-invalid]="error ? 'true' : null"
-    [attr.aria-describedby]="error ? id + '-error' : hint ? id + '-hint' : null"
+    [attr.aria-describedby]="error ? controlId + '-error' : hint ? controlId + '-hint' : null"
+    (input)="onInputChange($event)"
+    (blur)="onInputBlur()"
   />
 
   @if (error) {
-    <p class="input-error" [id]="id + '-error'">
+    <p class="input-error" [id]="controlId + '-error'">
       {{ error }}
     </p>
   } @else if (hint) {
-    <p class="input-hint" [id]="id + '-hint'">
+    <p class="input-hint" [id]="controlId + '-hint'">
       {{ hint }}
     </p>
   }

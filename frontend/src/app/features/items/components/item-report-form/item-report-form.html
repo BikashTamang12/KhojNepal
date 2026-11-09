@@ -1,0 +1,250 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="surface-card-padded">
+  @if (serverError) {
+    <div class="alert-banner alert-banner-danger mb-5" role="alert">
+      <app-icon name="alert-circle" sizeClass="w-5 h-5 shrink-0" />
+      <span>{{ serverError }}</span>
+    </div>
+  }
+
+  @if (refError()) {
+    <div class="alert-banner alert-banner-warning mb-5" role="alert">
+      <app-icon name="alert-triangle" sizeClass="w-5 h-5 shrink-0" />
+      <div class="flex flex-wrap items-center justify-between gap-2 w-full">
+        <span>{{ refError() }}</span>
+        <button type="button" class="underline font-semibold" (click)="loadReferenceData()">
+          Retry
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="form-grid">
+    <div class="form-grid-full">
+      <app-input
+        id="item-title"
+        name="title"
+        label="Item Title"
+        [placeholder]="reportType === 'LOST' ? 'e.g. Black Leather Wallet with Citizens Bank Cards' : 'e.g. Found Silver iPhone 14 near New Road'"
+        [required]="true"
+        [error]="getError('title')"
+        formControlName="title"
+      />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="item-category">
+        Category <span class="field-required">*</span>
+      </label>
+      <select
+        id="item-category"
+        class="form-select"
+        formControlName="categoryId"
+        [attr.aria-invalid]="getError('categoryId') ? 'true' : null"
+      >
+        <option value="">Select category</option>
+        @for (cat of categories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+        }
+      </select>
+      @if (getError('categoryId')) {
+        <p class="field-error">{{ getError('categoryId') }}</p>
+      }
+    </div>
+
+    <app-input
+      id="item-date"
+      name="dateLostOrFound"
+      type="date"
+      [label]="reportType === 'LOST' ? 'Date Lost' : 'Date Found'"
+      [max]="todayIso"
+      [required]="true"
+      [error]="getError('dateLostOrFound')"
+      formControlName="dateLostOrFound"
+    />
+
+    <app-input
+      id="item-brand"
+      name="brand"
+      label="Brand / Make"
+      placeholder="e.g. Apple, Samsung, Titan, Wildcraft"
+      [error]="getError('brand')"
+      formControlName="brand"
+    />
+
+    <app-input
+      id="item-color"
+      name="color"
+      label="Primary Color"
+      placeholder="e.g. Black, Navy Blue, Brown"
+      [error]="getError('color')"
+      formControlName="color"
+    />
+
+    <!-- Cascading Nepal Location Selection -->
+    <div class="field-group">
+      <label class="field-label" for="item-province">Province Filter</label>
+      <select
+        id="item-province"
+        class="form-select"
+        [value]="selectedProvince()"
+        (change)="onProvinceChange($event)"
+      >
+        <option value="">All Provinces</option>
+        @for (prov of provinces(); track prov) {
+          <option [value]="prov">{{ prov }}</option>
+        }
+      </select>
+      <p class="field-hint">Narrow down by province first, or choose directly below.</p>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="item-district">District Filter</label>
+      <select
+        id="item-district"
+        class="form-select"
+        [value]="selectedDistrict()"
+        [disabled]="!selectedProvince()"
+        (change)="onDistrictChange($event)"
+      >
+        <option value="">
+          {{ selectedProvince() ? 'All districts in ' + selectedProvince() : 'Select a province first' }}
+        </option>
+        @for (dist of districts(); track dist) {
+          <option [value]="dist">{{ dist }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field-group form-grid-full">
+      <label class="field-label" for="item-location">
+        Municipality &amp; Area <span class="field-required">*</span>
+      </label>
+      <select
+        id="item-location"
+        class="form-select"
+        formControlName="locationId"
+        [attr.aria-invalid]="getError('locationId') ? 'true' : null"
+      >
+        <option value="">
+          {{ loadingRefData() ? 'Loading Nepal locations...' : 'Select area / municipality' }}
+        </option>
+        @for (loc of filteredLocations(); track loc.id) {
+          <option [value]="loc.id">
+            {{ loc.district }} — {{ formatLocationName(loc) }}
+          </option>
+        }
+      </select>
+      @if (getError('locationId')) {
+        <p class="field-error">{{ getError('locationId') }}</p>
+      }
+    </div>
+
+    <div class="field-group form-grid-full">
+      <label class="field-label" for="item-location-details">
+        Specific Landmark / Circumstances (Optional)
+      </label>
+      <input
+        id="item-location-details"
+        type="text"
+        class="form-control"
+        placeholder="e.g. Near Ratna Park bus stop, outside Himalayan Java"
+        formControlName="specificLocationDetails"
+      />
+      @if (getError('specificLocationDetails')) {
+        <p class="field-error">{{ getError('specificLocationDetails') }}</p>
+      }
+    </div>
+
+    <div class="field-group form-grid-full">
+      <label class="field-label" for="item-description">
+        Detailed Description <span class="field-required">*</span>
+      </label>
+      <textarea
+        id="item-description"
+        class="form-textarea"
+        rows="4"
+        placeholder="Describe identifying marks, contents, serial number hints, stickers, or condition. Clear details improve smart matching accuracy."
+        formControlName="description"
+        [attr.aria-invalid]="getError('description') ? 'true' : null"
+      ></textarea>
+      @if (getError('description')) {
+        <p class="field-error">{{ getError('description') }}</p>
+      } @else {
+        <p class="field-hint">
+          Avoid posting sensitive government ID numbers publicly; keep secret proof details for claim verification.
+        </p>
+      }
+    </div>
+
+    <div class="form-grid-full">
+      <app-input
+        id="item-contact"
+        name="contactInfo"
+        label="Preferred Contact Note (Private until claim approval)"
+        placeholder="e.g. 98XXXXXXXX (available 9 AM - 6 PM)"
+        hint="Hidden from public listings. Revealed only after an admin approves a verified claim."
+        [error]="getError('contactInfo')"
+        formControlName="contactInfo"
+      />
+    </div>
+
+    <!-- Multipart Image Upload -->
+    <div class="field-group form-grid-full">
+      <label class="field-label" for="item-images">
+        Photos (Up to 5 images &middot; JPG, PNG, WebP &middot; Max 5MB each)
+      </label>
+
+      <label for="item-images" class="upload-dropzone">
+        <app-icon name="upload" sizeClass="w-6 h-6 text-[var(--color-primary)]" />
+        <span class="font-semibold">Click to select images</span>
+        <span class="text-xs text-secondary">
+          First uploaded photo becomes the cover image ({{ previews().length }}/5 selected)
+        </span>
+        <input
+          id="item-images"
+          type="file"
+          class="sr-only"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          (change)="onFilesSelected($event)"
+        />
+      </label>
+
+      @if (previews().length > 0) {
+        <div class="preview-grid">
+          @for (item of previews(); track item.previewUrl; let idx = $index) {
+            <div class="preview-card">
+              <img [src]="item.previewUrl" [alt]="item.file.name" />
+              <div class="preview-meta">
+                @if (idx === 0) {
+                  <span class="primary-tag">Primary</span>
+                } @else {
+                  <span class="text-xs text-secondary">#{{ idx + 1 }}</span>
+                }
+                <button
+                  type="button"
+                  class="remove-preview-btn"
+                  (click)="removePreview(idx)"
+                  [attr.aria-label]="'Remove ' + item.file.name"
+                >
+                  <app-icon name="trash" sizeClass="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <app-button
+      type="submit"
+      variant="primary"
+      size="lg"
+      [loading]="submitting"
+    >
+      {{ reportType === 'LOST' ? 'Submit Lost Item Report' : 'Submit Found Item Report' }}
+    </app-button>
+  </div>
+</form>

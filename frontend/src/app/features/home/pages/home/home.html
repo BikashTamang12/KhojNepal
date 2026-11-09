@@ -5,7 +5,7 @@
       <div class="hero-content">
         <span class="hero-eyebrow">
           <span class="eyebrow-dot"></span>
-          SMART LOST & FOUND PLATFORM
+          SMART LOST &amp; FOUND PLATFORM
         </span>
 
         <h1>
@@ -14,7 +14,7 @@
         </h1>
 
         <p class="hero-description">
-          KhojNepal helps reunite people with their lost belongings.
+          KhojNepal helps reunite people with their lost belongings across Nepal.
           Report lost or found items and let intelligent matching
           technology help you find the right connection.
         </p>
@@ -44,64 +44,66 @@
       <div class="hero-visual">
         <div class="visual-glow"></div>
 
-        <div class="visual-card main-visual-card">
-          <div class="visual-card-header">
+        <div class="visual-stage">
+          <div class="floating-card floating-card-top">
+            <span class="floating-icon w-8 h-8 rounded-lg bg-rose-500/10 text-brand-crimson shrink-0">
+              <app-icon name="map-pin" sizeClass="w-4 h-4" />
+            </span>
             <div>
-              <span class="visual-label">SMART MATCHING</span>
-              <h3>Potential Match Found</h3>
-            </div>
-            <span class="match-indicator">AI</span>
-          </div>
-
-          <div class="match-item">
-            <div class="match-icon wallet-icon">
-              <app-icon name="wallet" sizeClass="w-6 h-6" />
-            </div>
-            <div class="match-details">
-              <strong>Black Leather Wallet</strong>
-              <span>Lost &middot; Kathmandu</span>
+              <strong>Location based</strong>
+              <small>Find nearby matches</small>
             </div>
           </div>
 
-          <div class="match-connector">
-            <span></span>
-            <span class="connector-text">Potential match</span>
-            <span></span>
-          </div>
-
-          <div class="match-item">
-            <div class="match-icon found-icon text-brand-teal">
-              <app-icon name="check" sizeClass="w-6 h-6" />
+          <div class="visual-card main-visual-card">
+            <div class="visual-card-header">
+              <div>
+                <span class="visual-label">SMART MATCHING</span>
+                <h3>Potential Match Found</h3>
+              </div>
+              <span class="match-indicator">AI</span>
             </div>
-            <div class="match-details">
-              <strong>Black Wallet</strong>
-              <span>Found &middot; Kathmandu</span>
+
+            <div class="match-item">
+              <div class="match-icon wallet-icon">
+                <app-icon name="wallet" sizeClass="w-6 h-6" />
+              </div>
+              <div class="match-details">
+                <strong>Black Leather Wallet</strong>
+                <span>Lost &middot; Kathmandu</span>
+              </div>
+            </div>
+
+            <div class="match-connector">
+              <span></span>
+              <span class="connector-text">Potential match</span>
+              <span></span>
+            </div>
+
+            <div class="match-item">
+              <div class="match-icon found-icon text-brand-teal">
+                <app-icon name="check" sizeClass="w-6 h-6" />
+              </div>
+              <div class="match-details">
+                <strong>Black Wallet</strong>
+                <span>Found &middot; Kathmandu</span>
+              </div>
+            </div>
+
+            <div class="match-footer">
+              <span class="match-status-dot"></span>
+              Intelligent matching in action
             </div>
           </div>
 
-          <div class="match-footer">
-            <span class="match-status-dot"></span>
-            Intelligent matching in action
-          </div>
-        </div>
-
-        <div class="floating-card floating-card-top">
-          <span class="floating-icon w-9 h-9 rounded-lg bg-rose-500/10 text-brand-crimson shrink-0">
-            <app-icon name="map-pin" sizeClass="w-5 h-5" />
-          </span>
-          <div>
-            <strong>Location based</strong>
-            <small>Find nearby matches</small>
-          </div>
-        </div>
-
-        <div class="floating-card floating-card-bottom">
-          <span class="floating-icon w-9 h-9 rounded-lg bg-amber-500/10 text-brand-amber shrink-0">
-            <app-icon name="bell" sizeClass="w-5 h-5" />
-          </span>
-          <div>
-            <strong>Stay informed</strong>
-            <small>Get match notifications</small>
+          <div class="floating-card floating-card-bottom">
+            <span class="floating-icon w-8 h-8 rounded-lg bg-amber-500/10 text-brand-amber shrink-0">
+              <app-icon name="bell" sizeClass="w-4 h-4" />
+            </span>
+            <div>
+              <strong>Stay informed</strong>
+              <small>Get match notifications</small>
+            </div>
           </div>
         </div>
       </div>
@@ -116,14 +118,16 @@
         <p>Start searching through reported lost and found items.</p>
       </div>
 
-      <form class="search-form" (submit)="$event.preventDefault()">
+      <form class="search-form" (ngSubmit)="onSearchSubmit()">
         <div class="search-input-wrapper">
           <span class="search-icon text-[var(--color-text-secondary)]">
             <app-icon name="search" sizeClass="w-5 h-5" />
           </span>
           <input
             type="search"
-            placeholder="Search by item name, description or keyword..."
+            name="searchQuery"
+            [(ngModel)]="searchQuery"
+            placeholder="Search by item name, brand, location or keyword..."
             aria-label="Search reported items"
           />
         </div>
@@ -134,7 +138,7 @@
       </form>
 
       <p class="search-note">
-        Try searching for wallet, phone, documents or backpack.
+        Try searching for wallet, phone, citizenship, documents, or backpack.
       </p>
     </div>
   </section>
@@ -168,14 +172,14 @@
     </div>
   </section>
 
-  <!-- Featured Items -->
+  <!-- Recently Reported Items (Live API Data) -->
   <section class="featured-section">
     <div class="section-container">
       <div class="featured-heading">
         <div>
           <span class="section-eyebrow">COMMUNITY REPORTS</span>
           <h2>Recently Reported Items</h2>
-          <p>Explore some examples of lost and found reports.</p>
+          <p>Latest lost and found reports submitted by the community.</p>
         </div>
 
         <a routerLink="/items" class="view-all-link inline-flex items-center gap-1.5 group">
@@ -187,45 +191,40 @@
         </a>
       </div>
 
-      <div class="featured-grid">
-        @for (item of featuredItems; track item.title) {
-          <article class="featured-card">
-            <div class="featured-image-placeholder">
-              <div class="w-16 h-16 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm flex items-center justify-center text-[var(--color-primary)]">
-                <app-icon [name]="item.icon" sizeClass="w-8 h-8" />
-              </div>
-              <span
-                class="item-status"
-                [class.status-lost]="item.status === 'Lost'"
-                [class.status-found]="item.status === 'Found'"
-              >
-                {{ item.status }}
-              </span>
-            </div>
-
-            <div class="featured-card-content">
-              <span class="item-category">{{ item.category }}</span>
-              <h3>{{ item.title }}</h3>
-
-              <div class="item-meta">
-                <span class="inline-flex items-center gap-1.5">
-                  <app-icon name="map-pin" sizeClass="w-3.5 h-3.5 text-brand-crimson" />
-                  {{ item.location }}
-                </span>
-                <span class="inline-flex items-center gap-1.5">
-                  <app-icon name="clock" sizeClass="w-3.5 h-3.5 text-brand-teal" />
-                  {{ item.date }}
-                </span>
-              </div>
-            </div>
-          </article>
-        }
-      </div>
-
-      <p class="demo-note">
-        These are sample items for the homepage design. Live reports will
-        appear here after backend integration.
-      </p>
+      @if (loadingItems()) {
+        <app-loading mode="skeleton" skeletonVariant="card" [count]="3" />
+      } @else if (loadError()) {
+        <app-error-state
+          title="Could not load recent reports"
+          [message]="loadError()!"
+          [compact]="true"
+          (retry)="loadRecentItems()"
+        />
+      } @else if (recentItems().length === 0) {
+        <app-empty-state
+          icon="package"
+          title="No reports submitted yet"
+          description="Be the first to post a lost or found item report across Nepal."
+          actionLabel="Report Lost Item"
+          actionRouterLink="/items/report-lost"
+          [compact]="true"
+        />
+      } @else {
+        <div class="featured-grid">
+          @for (item of recentItems(); track item.id) {
+            <app-item-card
+              [id]="item.id"
+              [title]="item.title"
+              [description]="item.description"
+              [imageUrl]="getPrimaryImageUrl(item)"
+              [category]="item.category?.name || 'General'"
+              [location]="getLocationText(item)"
+              [date]="getDateText(item)"
+              [status]="item.reportType === 'FOUND' ? 'found' : 'lost'"
+            />
+          }
+        </div>
+      }
     </div>
   </section>
 

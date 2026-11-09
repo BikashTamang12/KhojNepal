@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { AppDataSource } from '../data-source.js';
 import { CategorySeeder } from './category.seed.js';
+import { LocationSeeder } from './location.seed.js';
 import { AdminSeeder } from './admin.seed.js';
 
 async function runSeeders() {
@@ -14,6 +15,7 @@ async function runSeeders() {
 
     const seeders = [
       new CategorySeeder(),
+      new LocationSeeder(),
       new AdminSeeder(),
     ];
 

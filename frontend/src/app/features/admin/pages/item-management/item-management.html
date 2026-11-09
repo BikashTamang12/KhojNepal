@@ -1,1 +1,123 @@
-<p>item-management works!</p>
+<app-page-header
+  eyebrow="Administration"
+  title="Items Moderation"
+  description="Filter across all lost and found reports, inspect item listings, and moderate report statuses."
+/>
+
+<form class="surface-card-padded mb-6 flex flex-wrap items-end gap-4" (ngSubmit)="onFilterChange()">
+  <div class="field-group min-w-[200px] flex-1">
+    <label class="field-label" for="admin-item-q">Keyword</label>
+    <input
+      id="admin-item-q"
+      name="q"
+      type="search"
+      class="form-control"
+      placeholder="Title, description, location..."
+      [(ngModel)]="q"
+    />
+  </div>
+
+  <div class="field-group min-w-[140px]">
+    <label class="field-label" for="admin-item-type">Type</label>
+    <select id="admin-item-type" name="reportType" class="form-select" [(ngModel)]="reportType" (change)="onFilterChange()">
+      <option value="">All Types</option>
+      <option value="LOST">Lost</option>
+      <option value="FOUND">Found</option>
+    </select>
+  </div>
+
+  <div class="field-group min-w-[160px]">
+    <label class="field-label" for="admin-item-status">Status</label>
+    <select id="admin-item-status" name="status" class="form-select" [(ngModel)]="status" (change)="onFilterChange()">
+      <option value="">All Statuses</option>
+      <option value="OPEN">Open</option>
+      <option value="CLAIM_PENDING">Claim Pending</option>
+      <option value="RESOLVED">Resolved</option>
+      <option value="CLOSED">Closed</option>
+    </select>
+  </div>
+
+  <app-button type="submit" variant="primary" size="md">Search</app-button>
+</form>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="table" [count]="5" />
+} @else if (error()) {
+  <app-error-state
+    title="Failed to load items"
+    [message]="error()!"
+    (retry)="loadItems()"
+  />
+} @else if (items().length === 0) {
+  <app-empty-state
+    icon="package"
+    title="No reports found"
+    description="Try clearing search keywords or changing filters."
+  />
+} @else {
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item Report</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Moderate Status</th>
+          <th>Inspect</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of items(); track item.id) {
+          <tr>
+            <td>
+              <strong class="block">{{ item.title }}</strong>
+              <span class="text-xs text-secondary">{{ item.category?.name || 'General' }}</span>
+            </td>
+            <td>
+              <app-badge [variant]="item.reportType === 'FOUND' ? 'found' : 'lost'" [label]="item.reportType" size="sm" />
+            </td>
+            <td>{{ formatLocation(item) }}</td>
+            <td class="whitespace-nowrap">{{ formatDate(item.dateLostOrFound) }}</td>
+            <td>
+              <app-badge [variant]="badgeVariant(item.status)" [label]="formatLabel(item.status)" size="sm" />
+            </td>
+            <td>
+              <select
+                class="form-select min-w-[145px]"
+                [value]="item.status"
+                [disabled]="busyItemId() === item.id"
+                (change)="onStatusChange(item, $event)"
+                [attr.aria-label]="'Change status for ' + item.title"
+              >
+                <option value="OPEN">Open</option>
+                <option value="CLAIM_PENDING">Claim Pending</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="CLOSED">Closed</option>
+              </select>
+            </td>
+            <td>
+              <a
+                [routerLink]="['/items', item.id]"
+                class="font-semibold text-[var(--color-primary)] hover:underline whitespace-nowrap"
+              >
+                View Report
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6">
+    <app-pagination
+      [page]="page"
+      [pageSize]="limit"
+      [totalItems]="total()"
+      itemLabel="items"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+}

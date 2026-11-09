@@ -1,1 +1,152 @@
-<p>admin-dashboard works!</p>
+<app-page-header
+  eyebrow="Administration"
+  title="System Overview"
+  description="Monitor platform adoption, item resolutions, pending verification claims, and smart matching throughput."
+/>
+
+@if (loading()) {
+  <app-loading mode="skeleton" skeletonVariant="card" [count]="6" />
+} @else if (error() || !data()) {
+  <app-error-state
+    title="Dashboard failed to load"
+    [message]="error() || 'Analytics unavailable.'"
+    (retry)="loadDashboard()"
+  />
+} @else {
+  @let d = data()!;
+
+  <!-- KPI Summary Cards -->
+  <section class="responsive-grid-3 mb-8">
+    <article class="surface-card-padded">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase text-secondary">Community Users</span>
+        <app-icon name="users" sizeClass="w-5 h-5 text-[var(--color-primary)]" />
+      </div>
+      <p class="text-3xl font-extrabold m-0">{{ d.summary.users.total }}</p>
+      <p class="text-xs text-secondary mt-2 mb-0">
+        {{ d.summary.users.active }} active &middot; {{ d.summary.users.verified }} verified
+      </p>
+    </article>
+
+    <article class="surface-card-padded">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase text-secondary">Item Reports</span>
+        <app-icon name="package" sizeClass="w-5 h-5 text-[var(--color-primary)]" />
+      </div>
+      <p class="text-3xl font-extrabold m-0">{{ d.summary.items.total }}</p>
+      <p class="text-xs text-secondary mt-2 mb-0">
+        {{ d.summary.items.lost }} lost &middot; {{ d.summary.items.found }} found &middot; {{ d.summary.items.resolved }} resolved
+      </p>
+    </article>
+
+    <article class="surface-card-padded">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase text-secondary">Pending Claims</span>
+        <app-icon name="shield-check" sizeClass="w-5 h-5 text-brand-amber" />
+      </div>
+      <p class="text-3xl font-extrabold m-0">{{ d.summary.claims.pending }}</p>
+      <p class="text-xs text-secondary mt-2 mb-0">
+        {{ d.summary.claims.approved }} approved &middot; {{ d.summary.claims.rejected }} rejected ({{ d.summary.claims.total }} total)
+      </p>
+    </article>
+
+    <article class="surface-card-padded">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase text-secondary">Smart Matches</span>
+        <app-icon name="sparkles" sizeClass="w-5 h-5 text-[var(--color-primary)]" />
+      </div>
+      <p class="text-3xl font-extrabold m-0">{{ d.summary.matches.total }}</p>
+      <p class="text-xs text-secondary mt-2 mb-0">
+        {{ d.summary.matches.pending }} pending &middot; {{ d.summary.matches.accepted }} accepted
+      </p>
+    </article>
+
+    <article class="surface-card-padded">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase text-secondary">Handovers Completed</span>
+        <app-icon name="reunite" sizeClass="w-5 h-5 text-brand-teal" />
+      </div>
+      <p class="text-3xl font-extrabold m-0">{{ d.summary.handovers.confirmed }}</p>
+      <p class="text-xs text-secondary mt-2 mb-0">
+        Out of {{ d.summary.handovers.total }} scheduled handovers
+      </p>
+    </article>
+
+    <article class="surface-card-padded">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase text-secondary">Taxonomy Coverage</span>
+        <app-icon name="layers" sizeClass="w-5 h-5 text-[var(--color-primary)]" />
+      </div>
+      <p class="text-3xl font-extrabold m-0">{{ d.summary.taxonomy.categoriesActive }} Categories</p>
+      <p class="text-xs text-secondary mt-2 mb-0">
+        {{ d.summary.taxonomy.locationsTotal }} seeded Nepal locations
+      </p>
+    </article>
+  </section>
+
+  <!-- Recent Queues -->
+  <div class="responsive-grid-2">
+    <section class="surface-card-padded">
+      <div class="flex items-center justify-between gap-2 mb-4">
+        <h2 class="text-lg font-bold m-0">Pending Claim Queue</h2>
+        <a routerLink="/admin/claims" class="text-xs font-semibold text-[var(--color-primary)] hover:underline">
+          View All Claims
+        </a>
+      </div>
+
+      @if (d.pendingClaimQueue.length === 0) {
+        <p class="text-sm text-secondary m-0">No claims currently awaiting admin review.</p>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (claim of d.pendingClaimQueue; track claim.id) {
+            <a
+              [routerLink]="['/claims', claim.id]"
+              class="p-3 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-hover)] flex items-center justify-between gap-3"
+            >
+              <div class="min-w-0">
+                <strong class="block truncate">{{ claim.item?.title || 'Item Report' }}</strong>
+                <span class="text-xs text-secondary">
+                  Claimant: {{ claim.claimant?.fullName || 'Member' }} &middot; Reporter: {{ formatLabel(claim.finderStatus) }}
+                </span>
+              </div>
+              <app-badge [variant]="badgeVariant(claim.finderStatus)" [label]="formatLabel(claim.finderStatus)" size="sm" />
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="surface-card-padded">
+      <div class="flex items-center justify-between gap-2 mb-4">
+        <h2 class="text-lg font-bold m-0">Recently Reported Items</h2>
+        <a routerLink="/admin/items" class="text-xs font-semibold text-[var(--color-primary)] hover:underline">
+          Moderate Items
+        </a>
+      </div>
+
+      @if (d.recentItems.length === 0) {
+        <p class="text-sm text-secondary m-0">No recent item reports recorded.</p>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (item of d.recentItems; track item.id) {
+            <a
+              [routerLink]="['/items', item.id]"
+              class="p-3 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-hover)] flex items-center justify-between gap-3"
+            >
+              <div class="min-w-0">
+                <strong class="block truncate">{{ item.title }}</strong>
+                <span class="text-xs text-secondary">
+                  {{ formatLocation(item) }} &middot; {{ formatDate(item.createdAt) }}
+                </span>
+              </div>
+              <div class="flex gap-1.5 shrink-0">
+                <app-badge [variant]="item.reportType === 'FOUND' ? 'found' : 'lost'" [label]="item.reportType" size="sm" />
+                <app-badge [variant]="badgeVariant(item.status)" [label]="formatLabel(item.status)" size="sm" />
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+  </div>
+}

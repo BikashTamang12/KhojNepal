@@ -1,0 +1,110 @@
+<div class="shell-layout">
+  @if (sidebarOpen()) {
+    <div class="shell-backdrop" (click)="closeSidebar()"></div>
+  }
+
+  <aside class="shell-sidebar" [class.open]="sidebarOpen()" aria-label="Workspace navigation">
+    <div class="sidebar-top">
+      <div class="flex items-center justify-between gap-2">
+        <a routerLink="/" class="sidebar-brand" (click)="closeSidebar()">
+          <app-logo size="sm" />
+        </a>
+        <button
+          type="button"
+          class="sidebar-close-btn touch-target"
+          (click)="closeSidebar()"
+          aria-label="Close navigation drawer"
+        >
+          <app-icon name="x" sizeClass="w-5 h-5" />
+        </button>
+      </div>
+
+      <span class="sidebar-section-label">User Workspace</span>
+
+      <nav class="sidebar-nav">
+        @for (item of navItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
+            (click)="closeSidebar()"
+          >
+            <span class="inline-flex items-center gap-2.5">
+              <app-icon [name]="item.icon" sizeClass="w-4 h-4" />
+              <span>{{ item.label }}</span>
+            </span>
+            @if (item.showBadge && notificationService.unreadCount() > 0) {
+              <span class="sidebar-count">{{ notificationService.unreadCount() }}</span>
+            }
+          </a>
+        }
+      </nav>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-divider"></div>
+      <a routerLink="/items" class="sidebar-secondary-link" (click)="closeSidebar()">
+        <app-icon name="search" sizeClass="w-4 h-4" />
+        <span>Browse Public Items</span>
+      </a>
+      @if (authService.isAdmin()) {
+        <a routerLink="/admin" class="sidebar-secondary-link" (click)="closeSidebar()">
+          <app-icon name="shield" sizeClass="w-4 h-4" />
+          <span>Admin Console</span>
+        </a>
+      }
+      <button type="button" class="sidebar-logout" (click)="logout()">
+        <app-icon name="logout" sizeClass="w-4 h-4" />
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="shell-main">
+    <header class="shell-topbar">
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="mobile-drawer-btn touch-target"
+          (click)="toggleSidebar()"
+          aria-label="Open menu"
+        >
+          <app-icon name="menu" sizeClass="w-5 h-5" />
+        </button>
+        <div class="topbar-user-chip">
+          <span class="font-semibold">{{ authService.user()?.fullName }}</span>
+          @if (authService.user()?.isVerified) {
+            <app-icon name="check-badge" sizeClass="w-4 h-4 text-[var(--color-primary)]" />
+          }
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <a routerLink="/notifications" class="topbar-icon-btn touch-target relative" aria-label="Notifications">
+          <app-icon name="bell" sizeClass="w-4 h-4" />
+          @if (notificationService.unreadCount() > 0) {
+            <span class="topbar-dot">{{ notificationService.unreadCount() > 9 ? '9+' : notificationService.unreadCount() }}</span>
+          }
+        </a>
+        <button
+          type="button"
+          class="topbar-icon-btn touch-target"
+          (click)="toggleTheme()"
+          [attr.aria-label]="'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' mode'"
+        >
+          @if (themeService.theme() === 'light') {
+            <app-icon name="moon" sizeClass="w-4 h-4" />
+          } @else {
+            <app-icon name="sun" sizeClass="w-4 h-4 text-brand-amber" />
+          }
+        </button>
+      </div>
+    </header>
+
+    <main class="shell-content">
+      <div class="page-container py-6 sm:py-8">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+</div>

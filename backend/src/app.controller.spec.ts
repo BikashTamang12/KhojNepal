@@ -18,5 +18,11 @@ describe('AppController', () => {
     it('should return "Hello World!"', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
+
+    it('should return ok status on health check', () => {
+      const health = appController.getHealth();
+      expect(health.status).toBe('ok');
+      expect(health.service).toBe('KhojNepal API');
+    });
   });
 });
