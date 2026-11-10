@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
-import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { userGuard } from './core/guards/user.guard';
 
 export const routes: Routes = [
   {
     path: 'items/my',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'items/report-lost',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -40,7 +40,7 @@ export const routes: Routes = [
   },
   {
     path: 'items/report-found',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -57,7 +57,7 @@ export const routes: Routes = [
   },
   {
     path: 'matching',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -81,7 +81,7 @@ export const routes: Routes = [
   },
   {
     path: 'claims',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -105,7 +105,7 @@ export const routes: Routes = [
   },
   {
     path: 'notifications',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -122,7 +122,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    canActivate: [authGuard],
+    canActivate: [userGuard],
     loadComponent: () =>
       import('./shared/layouts/workspace-layout/workspace-layout').then(
         (m) => m.WorkspaceLayout,
@@ -167,6 +167,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'items/:id',
+        data: { adminView: true },
+        loadComponent: () =>
+          import('./features/items/pages/item-detail/item-detail').then(
+            (m) => m.ItemDetail,
+          ),
+      },
+      {
         path: 'claims',
         loadComponent: () =>
           import(
@@ -174,11 +182,27 @@ export const routes: Routes = [
           ).then((m) => m.ClaimManagement),
       },
       {
+        path: 'claims/:id',
+        data: { adminView: true },
+        loadComponent: () =>
+          import('./features/claims/pages/claim-detail/claim-detail').then(
+            (m) => m.ClaimDetail,
+          ),
+      },
+      {
         path: 'matches',
         loadComponent: () =>
           import(
             './features/admin/pages/match-management/match-management'
           ).then((m) => m.MatchManagement),
+      },
+      {
+        path: 'matches/:id',
+        data: { adminView: true },
+        loadComponent: () =>
+          import('./features/matching/pages/match-detail/match-detail').then(
+            (m) => m.MatchDetail,
+          ),
       },
       {
         path: 'categories',

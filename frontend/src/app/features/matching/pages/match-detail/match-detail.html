@@ -1,10 +1,10 @@
 <div class="mb-4">
   <a
-    routerLink="/matching"
+    [routerLink]="(isAdminView || authService.isAdmin()) ? '/admin/matches' : '/matching'"
     class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-[var(--color-primary)]"
   >
     <app-icon name="arrow-left" sizeClass="w-4 h-4" />
-    <span>Back to Smart Matches</span>
+    <span>{{ (isAdminView || authService.isAdmin()) ? 'Back to Matches Overview' : 'Back to Smart Matches' }}</span>
   </a>
 </div>
 
@@ -26,7 +26,7 @@
   >
     <div page-actions class="flex flex-wrap items-center gap-2.5">
       <app-badge [variant]="badgeVariant(current.status)" [label]="formatLabel(current.status)" />
-      @if (counterpartItem(); as target) {
+      @if (!authService.isAdmin() && counterpartItem(); as target) {
         <a
           [routerLink]="['/items', target.id]"
           class="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] text-sm font-semibold"
@@ -42,18 +42,20 @@
   <section class="surface-card-padded mb-6">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
       <h2 class="text-lg font-bold m-0">Multi-Signal Score Breakdown</h2>
-      <div class="flex flex-wrap gap-2">
-        @if (current.status !== 'ACCEPTED') {
-          <app-button variant="secondary" size="sm" (click)="promptDecision('ACCEPTED')">
-            Accept Match
-          </app-button>
-        }
-        @if (current.status !== 'REJECTED') {
-          <app-button variant="outline" size="sm" (click)="promptDecision('REJECTED')">
-            Dismiss Match
-          </app-button>
-        }
-      </div>
+      @if (!authService.isAdmin()) {
+        <div class="flex flex-wrap gap-2">
+          @if (current.status !== 'ACCEPTED') {
+            <app-button variant="secondary" size="sm" (click)="promptDecision('ACCEPTED')">
+              Accept Match
+            </app-button>
+          }
+          @if (current.status !== 'REJECTED') {
+            <app-button variant="outline" size="sm" (click)="promptDecision('REJECTED')">
+              Dismiss Match
+            </app-button>
+          }
+        </div>
+      }
     </div>
 
     <div class="responsive-grid-2">
@@ -127,7 +129,7 @@
         </div>
 
         <a
-          [routerLink]="['/items', lost.id]"
+          [routerLink]="(isAdminView || authService.isAdmin()) ? ['/admin/items', lost.id] : ['/items', lost.id]"
           class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline mt-auto pt-2"
         >
           <span>Open Lost Item</span>
@@ -162,7 +164,7 @@
         </div>
 
         <a
-          [routerLink]="['/items', found.id]"
+          [routerLink]="(isAdminView || authService.isAdmin()) ? ['/admin/items', found.id] : ['/items', found.id]"
           class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline mt-auto pt-2"
         >
           <span>Open Found Item</span>

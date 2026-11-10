@@ -13,13 +13,16 @@ import { MatchingService } from './matching.service.js';
 import { MatchStatus } from './enums/match-status.enum.js';
 import { QueryMatchesDto } from './dto/query-matches.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 import {
   CurrentUser,
   type AuthenticatedUser,
 } from '../common/decorators/current-user.decorator.js';
+import { UserRole } from '../users/enums/user-role.enum.js';
 
 @Controller('matching')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class MatchingController {
   constructor(
     @Inject(MatchingService)
@@ -27,6 +30,7 @@ export class MatchingController {
   ) {}
 
   @Get('my')
+  @Roles(UserRole.USER)
   findMyMatches(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: QueryMatchesDto,
@@ -60,6 +64,7 @@ export class MatchingController {
   }
 
   @Patch(':id/accept')
+  @Roles(UserRole.USER)
   acceptMatch(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -68,6 +73,7 @@ export class MatchingController {
   }
 
   @Patch(':id/reject')
+  @Roles(UserRole.USER)
   rejectMatch(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,

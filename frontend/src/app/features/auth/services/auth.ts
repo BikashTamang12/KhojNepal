@@ -38,7 +38,11 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.tokenStorage.setSession(response.accessToken, response.user);
-          this.notificationService.refreshUnreadCount().subscribe();
+          if (response.user.role !== 'ADMIN') {
+            this.notificationService.refreshUnreadCount().subscribe();
+          } else {
+            this.notificationService.resetUnreadCount();
+          }
         }),
       );
   }
@@ -78,8 +82,12 @@ export class AuthService {
     }
 
     return this.getMe(true).pipe(
-      tap(() => {
-        this.notificationService.refreshUnreadCount().subscribe();
+      tap((user) => {
+        if (user.role !== 'ADMIN') {
+          this.notificationService.refreshUnreadCount().subscribe();
+        } else {
+          this.notificationService.resetUnreadCount();
+        }
       }),
       catchError((error: unknown) => {
         if (

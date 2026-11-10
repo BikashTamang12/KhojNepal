@@ -11,13 +11,17 @@ import {
 import { NotificationsService } from './notifications.service.js';
 import { QueryNotificationDto } from './dto/query-notification.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 import {
   CurrentUser,
   type AuthenticatedUser,
 } from '../common/decorators/current-user.decorator.js';
+import { UserRole } from '../users/enums/user-role.enum.js';
 
 @Controller('notifications')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.USER)
 export class NotificationsController {
   constructor(
     @Inject(NotificationsService)

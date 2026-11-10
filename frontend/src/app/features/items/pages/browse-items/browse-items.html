@@ -5,19 +5,29 @@
     description="Search reported belongings across all provinces of Nepal and inspect details to submit verified ownership claims."
   >
     <div page-actions class="flex flex-wrap gap-2.5">
-      <a
-        routerLink="/items/report-lost"
-        class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
-      >
-        <app-icon name="plus" sizeClass="w-4 h-4" />
-        <span>Report Lost</span>
-      </a>
-      <a
-        routerLink="/items/report-found"
-        class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
-      >
-        <span>Report Found</span>
-      </a>
+      @if (authService.isAdmin()) {
+        <a
+          routerLink="/admin/items"
+          class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+        >
+          <app-icon name="shield" sizeClass="w-4 h-4" />
+          <span>Moderate Items</span>
+        </a>
+      } @else {
+        <a
+          routerLink="/items/report-lost"
+          class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+        >
+          <app-icon name="plus" sizeClass="w-4 h-4" />
+          <span>Report Lost</span>
+        </a>
+        <a
+          routerLink="/items/report-found"
+          class="inline-flex items-center gap-1.5 min-h-[42px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+        >
+          <span>Report Found</span>
+        </a>
+      }
     </div>
   </app-page-header>
 

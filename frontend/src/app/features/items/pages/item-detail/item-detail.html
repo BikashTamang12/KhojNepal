@@ -1,11 +1,11 @@
 <section class="page-container py-8 sm:py-10">
   <div class="mb-5">
     <a
-      routerLink="/items"
+      [routerLink]="isAdminView ? '/admin/items' : '/items'"
       class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-[var(--color-primary)]"
     >
       <app-icon name="arrow-left" sizeClass="w-4 h-4" />
-      <span>Back to Browse Items</span>
+      <span>{{ isAdminView ? 'Back to Items Moderation' : 'Back to Browse Items' }}</span>
     </a>
   </div>
 
@@ -253,7 +253,7 @@
                 Scan Smart Matches
               </app-button>
               <a
-                routerLink="/matching"
+                [routerLink]="isAdminView ? '/admin/matches' : '/matching'"
                 [queryParams]="{ itemId: current.id }"
                 class="inline-flex items-center min-h-[36px] px-3 rounded-lg border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-hover)]"
               >
@@ -288,7 +288,7 @@
           </div>
         }
 
-        <!-- Claim Submission Card -->
+        <!-- Claim Submission / Admin Moderation Card -->
         @if (!authService.isAuthenticated()) {
           <div class="surface-card-padded flex flex-col gap-3">
             <h2 class="text-base font-bold m-0">Think this item matches yours?</h2>
@@ -303,6 +303,22 @@
               Sign In to Claim
             </a>
           </div>
+        } @else if (authService.isAdmin()) {
+          @if (!isAdminView) {
+            <div class="surface-card-padded flex flex-col gap-3">
+              <h2 class="text-base font-bold m-0">Administrator Moderation</h2>
+              <p class="text-sm text-secondary m-0">
+                Administrator accounts moderate item reports from the Admin Console and cannot submit ownership claims.
+              </p>
+              <a
+                [routerLink]="['/admin/items', current.id]"
+                class="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+              >
+                <app-icon name="shield" sizeClass="w-4 h-4" />
+                <span>Open in Admin Console</span>
+              </a>
+            </div>
+          }
         } @else if (canSubmitClaim()) {
           <form [formGroup]="claimForm" (ngSubmit)="submitClaim()" class="surface-card-padded flex flex-col gap-4">
             <div>

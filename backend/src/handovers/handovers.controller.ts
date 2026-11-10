@@ -14,13 +14,16 @@ import { ItemHandover } from './entities/item-handover.entity.js';
 import { CreateHandoverDto } from './dto/create-handover.dto.js';
 import { UpdateHandoverActionDto } from './dto/update-handover-action.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 import {
   CurrentUser,
   type AuthenticatedUser,
 } from '../common/decorators/current-user.decorator.js';
+import { UserRole } from '../users/enums/user-role.enum.js';
 
 @Controller('handovers')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class HandoversController {
   constructor(
     @Inject(HandoversService)
@@ -33,6 +36,7 @@ export class HandoversController {
   }
 
   @Get('my')
+  @Roles(UserRole.USER)
   findMine(@CurrentUser() user: AuthenticatedUser): Promise<ItemHandover[]> {
     return this.handoversService.findMine(user.id);
   }

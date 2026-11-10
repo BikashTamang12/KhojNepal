@@ -26,7 +26,7 @@ export class PublicLayout {
 
   constructor() {
     effect(() => {
-      if (this.authService.isAuthenticated()) {
+      if (this.authService.isAuthenticated() && !this.authService.isAdmin()) {
         this.notificationService.refreshUnreadCount().subscribe();
       }
     });

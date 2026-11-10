@@ -127,4 +127,24 @@ describe('AuthService', () => {
     expect(notificationService.unreadCount()).toBe(0);
     expect(navSpy).toHaveBeenCalledWith('/login');
   });
+
+  it('does not fetch unread notifications when ADMIN logs in or restores session', () => {
+    const adminUser: User = {
+      ...sampleUser,
+      id: 'admin-1',
+      role: 'ADMIN',
+      email: 'admin@gmail.com',
+    };
+
+    service.login({ email: 'admin@gmail.com', password: 'password' }).subscribe();
+    httpTesting
+      .expectOne(`${environment.apiUrl}/auth/login`)
+      .flush({ accessToken: 'tok-adm', user: adminUser });
+    httpTesting.expectNone(`${environment.apiUrl}/notifications/unread-count`);
+
+    service.restoreSession().subscribe();
+    httpTesting.expectOne(`${environment.apiUrl}/auth/me`).flush(adminUser);
+    httpTesting.expectNone(`${environment.apiUrl}/notifications/unread-count`);
+    expect(notificationService.unreadCount()).toBe(0);
+  });
 });

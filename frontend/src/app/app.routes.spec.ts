@@ -94,6 +94,33 @@ describe('Application Routing & Guards', () => {
           createdAt: '2026-05-01T00:00:00Z',
           updatedAt: '2026-05-01T00:00:00Z',
         });
+      } else if (url.includes('/claims/claim-uuid-1')) {
+        req.flush({
+          id: 'claim-uuid-1',
+          itemId: 'item-uuid-42',
+          claimantId: 'user-member-1',
+          explanation: 'Claiming my lost backpack with serial details.',
+          evidenceDescription: 'Green keytag in front pocket.',
+          finderStatus: 'PENDING',
+          status: 'PENDING',
+          handover: null,
+          createdAt: '2026-05-02T00:00:00Z',
+          updatedAt: '2026-05-02T00:00:00Z',
+        });
+      } else if (url.includes('/matching/match-uuid-1')) {
+        req.flush({
+          id: 'match-uuid-1',
+          lostItemId: 'item-uuid-42',
+          foundItemId: 'item-uuid-99',
+          textScore: 0.85,
+          imageScore: 0.5,
+          locationScore: 1,
+          timeScore: 0.9,
+          finalScore: 0.82,
+          status: 'PENDING',
+          createdAt: '2026-05-02T00:00:00Z',
+          updatedAt: '2026-05-02T00:00:00Z',
+        });
       } else {
         req.flush(emptyPage);
       }
@@ -254,6 +281,53 @@ describe('Application Routing & Guards', () => {
     await harness.navigateByUrl('/admin/categories');
     flushPendingApiRequests();
     expect(router.url).toBe('/admin/categories');
+
+    // Admin inspects item, claim, and match inside Admin Console routes
+    await harness.navigateByUrl('/admin/items/item-uuid-42');
+    flushPendingApiRequests();
+    harness.detectChanges();
+    expect(router.url).toBe('/admin/items/item-uuid-42');
+    expect(harness.routeNativeElement?.textContent).toContain('Routed Lost Backpack');
+    expect(harness.routeNativeElement?.textContent).toContain('Back to Items Moderation');
+
+    await harness.navigateByUrl('/admin/claims/claim-uuid-1');
+    flushPendingApiRequests();
+    harness.detectChanges();
+    expect(router.url).toBe('/admin/claims/claim-uuid-1');
+    expect(harness.routeNativeElement?.textContent).toContain('Back to Claims Queue');
+
+    await harness.navigateByUrl('/admin/matches/match-uuid-1');
+    flushPendingApiRequests();
+    harness.detectChanges();
+    expect(router.url).toBe('/admin/matches/match-uuid-1');
+    expect(harness.routeNativeElement?.textContent).toContain('Back to Matches Overview');
+
+    // Admin can still view public item page
+    await harness.navigateByUrl('/items/item-uuid-42');
+    flushPendingApiRequests();
+    expect(router.url).toBe('/items/item-uuid-42');
+
+    // Admin is strictly blocked from all User Workspace routes -> redirected to /admin
+    for (const userOnlyUrl of [
+      '/items/my',
+      '/items/report-lost',
+      '/items/report-found',
+      '/matching',
+      '/matching/match-uuid-1',
+      '/claims',
+      '/claims/claim-uuid-1',
+      '/notifications',
+      '/profile',
+    ]) {
+      toastService.clear();
+      await harness.navigateByUrl(userOnlyUrl);
+      flushPendingApiRequests();
+      expect(router.url).toBe('/admin');
+      expect(
+        toastService.toasts().some((t) => t.title === 'User Workspace Only'),
+      ).toBe(true);
+    }
+
     expect(environment.apiUrl).toBeTruthy();
   });
 });

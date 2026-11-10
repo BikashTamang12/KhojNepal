@@ -1,10 +1,10 @@
 <div class="mb-4">
   <a
-    routerLink="/claims"
+    [routerLink]="(isAdminView || authService.isAdmin()) ? '/admin/claims' : '/claims'"
     class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-[var(--color-primary)]"
   >
     <app-icon name="arrow-left" sizeClass="w-4 h-4" />
-    <span>Back to Claims</span>
+    <span>{{ (isAdminView || authService.isAdmin()) ? 'Back to Claims Queue' : 'Back to Claims' }}</span>
   </a>
 </div>
 
@@ -91,7 +91,7 @@
       </article>
 
       <!-- Reporter Review Card -->
-      @if (isItemReporter() && current.status === 'PENDING') {
+      @if (isItemReporter() && !authService.isAdmin() && current.status === 'PENDING') {
         <form [formGroup]="finderForm" class="surface-card-padded flex flex-col gap-4">
           <div>
             <h2 class="text-lg font-bold mb-1">Reporter Verification</h2>
@@ -311,7 +311,7 @@
         }
 
         <a
-          [routerLink]="['/items', item.id]"
+          [routerLink]="(isAdminView || authService.isAdmin()) ? ['/admin/items', item.id] : ['/items', item.id]"
           class="inline-flex items-center justify-center gap-1.5 min-h-[40px] px-4 mt-2 rounded-lg border border-[var(--color-border)] text-sm font-semibold hover:bg-[var(--color-hover)]"
         >
           <span>View Full Item Report</span>

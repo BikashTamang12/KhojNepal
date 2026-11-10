@@ -164,4 +164,32 @@ describe('ClaimsController', () => {
       { status: ClaimStatus.APPROVED, adminNotes: 'Verified ownership' },
     );
   });
+
+  it('blocks ADMIN from user-only claim actions with 403 while permitting GET /claims/:id', async () => {
+    const claimId = '44444444-4444-4444-8444-444444444444';
+    const itemId = '33333333-3333-4333-8333-333333333333';
+
+    activeUser = adminUser;
+    await request(app.getHttpServer())
+      .post('/claims')
+      .send({
+        itemId,
+        explanation: 'Admin attempting to claim an item',
+        evidenceDescription: 'Admin role should be forbidden',
+      })
+      .expect(HttpStatus.FORBIDDEN);
+
+    await request(app.getHttpServer())
+      .get('/claims/my')
+      .expect(HttpStatus.FORBIDDEN);
+
+    await request(app.getHttpServer())
+      .patch(`/claims/${claimId}/finder-review`)
+      .send({ finderStatus: FinderClaimStatus.CONFIRMED })
+      .expect(HttpStatus.FORBIDDEN);
+
+    await request(app.getHttpServer())
+      .get(`/claims/${claimId}`)
+      .expect(HttpStatus.OK);
+  });
 });

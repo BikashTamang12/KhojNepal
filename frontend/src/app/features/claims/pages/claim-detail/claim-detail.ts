@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   type Claim,
   extractErrorMessage,
@@ -43,11 +43,19 @@ import { HandoverService } from '../../services/handover';
 })
 export class ClaimDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly claimService = inject(ClaimService);
   private readonly handoverService = inject(HandoverService);
   private readonly toastService = inject(ToastService);
   readonly authService = inject(AuthService);
+
+  get isAdminView(): boolean {
+    return (
+      Boolean(this.route.snapshot?.data?.['adminView']) ||
+      this.router.url.startsWith('/admin')
+    );
+  }
 
   readonly claim = signal<Claim | null>(null);
   readonly loading = signal(true);

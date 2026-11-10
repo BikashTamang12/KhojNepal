@@ -113,13 +113,20 @@ export class ItemDetail implements OnInit {
     return resolveMediaUrl(chosen?.filePath);
   });
 
+  get isAdminView(): boolean {
+    return (
+      Boolean(this.route.snapshot?.data?.['adminView']) ||
+      this.router.url.startsWith('/admin')
+    );
+  }
+
   readonly canManageItem = computed(() => {
     const current = this.item();
     const user = this.authService.user();
     if (!current || !user) {
       return false;
     }
-    return current.userId === user.id || user.role === 'ADMIN';
+    return current.userId === user.id || (user.role === 'ADMIN' && this.isAdminView);
   });
 
   readonly canSubmitClaim = computed(() => {
@@ -128,7 +135,7 @@ export class ItemDetail implements OnInit {
     if (!current || !user) {
       return false;
     }
-    if (current.userId === user.id) {
+    if (user.role === 'ADMIN' || current.userId === user.id) {
       return false;
     }
     return current.status === 'OPEN' || current.status === 'CLAIM_PENDING';
@@ -328,9 +335,12 @@ export class ItemDetail implements OnInit {
         this.runningMatch.set(false);
         if (res.generatedCount > 0) {
           this.toastService.success(`Generated ${res.generatedCount} match(es)!`);
-          void this.router.navigate(['/matching'], {
-            queryParams: { itemId: current.id },
-          });
+          void this.router.navigate(
+            this.isAdminView ? ['/admin/matches'] : ['/matching'],
+            {
+              queryParams: { itemId: current.id },
+            },
+          );
         } else {
           this.toastService.info('No matching opposite reports met the score threshold.');
         }

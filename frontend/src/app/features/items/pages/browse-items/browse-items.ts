@@ -22,6 +22,7 @@ import { ItemCard } from '../../../../shared/components/item-card/item-card';
 import { Loading } from '../../../../shared/components/loading/loading';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
+import { AuthService } from '../../../auth/services/auth';
 import { ItemService } from '../../services/item';
 
 @Component({
@@ -47,6 +48,7 @@ export class BrowseItems implements OnInit {
   private readonly referenceData = inject(ReferenceDataService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  readonly authService = inject(AuthService);
 
   readonly categories = signal<Category[]>([]);
   readonly locations = signal<Location[]>([]);

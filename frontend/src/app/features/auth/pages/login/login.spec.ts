@@ -181,4 +181,25 @@ describe('Login Page', () => {
     expect(alertEl?.textContent).toContain('Invalid email or password');
     expect(component.submitting()).toBe(false);
   });
+
+  it('redirects ADMIN to /admin when returnUrl points to a user workspace route', () => {
+    const fixture = TestBed.createComponent(Login);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    component.form.setValue({
+      email: 'admin@gmail.com',
+      password: 'password',
+    });
+    component.submit();
+
+    httpTesting.expectOne(`${environment.apiUrl}/auth/login`).flush({
+      accessToken: 'tok-admin',
+      user: { ...mockUser, id: 'admin-1', role: 'ADMIN', fullName: 'Admin' },
+    });
+    httpTesting.expectNone(`${environment.apiUrl}/notifications/unread-count`);
+
+    expect(navSpy).toHaveBeenCalledWith('/admin', { replaceUrl: true });
+  });
 });
