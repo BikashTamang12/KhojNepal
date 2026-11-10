@@ -12,6 +12,7 @@ import { TokenStorage } from '../services/token-storage';
 import { adminGuard } from './admin.guard';
 import { authGuard } from './auth.guard';
 import { guestGuard } from './guest.guard';
+import { userGuard } from './user.guard';
 
 const normalUser: User = {
   id: 'u-user',
@@ -112,6 +113,31 @@ describe('Route Guards (authGuard, guestGuard, adminGuard)', () => {
     tokenStorage.setSession('tok-admin', adminUser);
     expect(
       TestBed.runInInjectionContext(() => adminGuard(dummyRoute, state)),
+    ).toBe(true);
+  });
+
+  it('userGuard redirects guests to /login, allows USER, and redirects ADMIN to /admin', () => {
+    const state = { url: '/items/my' } as RouterStateSnapshot;
+
+    const unauthed = TestBed.runInInjectionContext(() =>
+      userGuard(dummyRoute, state),
+    );
+    expect(router.serializeUrl(unauthed as UrlTree)).toBe(
+      '/login?returnUrl=%2Fitems%2Fmy',
+    );
+
+    tokenStorage.setSession('tok-user', normalUser);
+    expect(
+      TestBed.runInInjectionContext(() => userGuard(dummyRoute, state)),
+    ).toBe(true);
+
+    tokenStorage.setSession('tok-admin', adminUser);
+    const adminBlocked = TestBed.runInInjectionContext(() =>
+      userGuard(dummyRoute, state),
+    );
+    expect(router.serializeUrl(adminBlocked as UrlTree)).toBe('/admin');
+    expect(
+      toastService.toasts().some((t) => t.title === 'User Workspace Only'),
     ).toBe(true);
   });
 });

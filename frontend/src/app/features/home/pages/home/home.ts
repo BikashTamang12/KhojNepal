@@ -12,6 +12,7 @@ import { ErrorState } from '../../../../shared/components/error-state/error-stat
 import { Icon, type IconName } from '../../../../shared/components/icon/icon';
 import { ItemCard } from '../../../../shared/components/item-card/item-card';
 import { Loading } from '../../../../shared/components/loading/loading';
+import { AuthService } from '../../../auth/services/auth';
 import { ItemService } from '../../../items/services/item';
 
 interface ProcessStep {
@@ -39,6 +40,7 @@ interface ProcessStep {
 export class Home implements OnInit {
   private readonly itemService = inject(ItemService);
   private readonly router = inject(Router);
+  readonly authService = inject(AuthService);
 
   searchQuery = '';
   readonly recentItems = signal<Item[]>([]);

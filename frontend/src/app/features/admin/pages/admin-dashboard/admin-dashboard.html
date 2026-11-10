@@ -100,7 +100,7 @@
         <div class="flex flex-col gap-3">
           @for (claim of d.pendingClaimQueue; track claim.id) {
             <a
-              [routerLink]="['/claims', claim.id]"
+              [routerLink]="['/admin/claims', claim.id]"
               class="p-3 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-hover)] flex items-center justify-between gap-3"
             >
               <div class="min-w-0">
@@ -130,7 +130,7 @@
         <div class="flex flex-col gap-3">
           @for (item of d.recentItems; track item.id) {
             <a
-              [routerLink]="['/items', item.id]"
+              [routerLink]="['/admin/items', item.id]"
               class="p-3 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-hover)] flex items-center justify-between gap-3"
             >
               <div class="min-w-0">

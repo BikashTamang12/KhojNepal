@@ -156,6 +156,10 @@ describe('ClaimDetail Page', () => {
       .flush(pendingClaim);
     fixture.detectChanges();
 
+    const adminEl = fixture.nativeElement as HTMLElement;
+    expect(adminEl.querySelector('a[href="/admin/claims"]')).toBeTruthy();
+    expect(adminEl.querySelector('a[href="/admin/items/item-1"]')).toBeTruthy();
+
     const comp = fixture.componentInstance;
     comp.adminForm.patchValue({ adminNotes: 'Verified ownership' });
     comp.submitAdminReview('APPROVED');

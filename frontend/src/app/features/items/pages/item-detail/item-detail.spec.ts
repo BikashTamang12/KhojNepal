@@ -228,4 +228,79 @@ describe('ItemDetail Page', () => {
     expect(comp.item()?.images).toHaveLength(1);
     expect(comp.imageToDelete()).toBeNull();
   });
+
+  it('prevents ADMIN from claiming on public item view and links to Admin Console, while enabling moderation in adminView', () => {
+    const adminUser: User = {
+      ...ownerUser,
+      id: 'admin-1',
+      fullName: 'Admin',
+      email: 'admin@gmail.com',
+      role: 'ADMIN',
+    };
+    tokenStorage.setSession('adm-jwt', adminUser);
+
+    const publicFixture = TestBed.createComponent(ItemDetail);
+    publicFixture.detectChanges();
+    httpTesting
+      .expectOne(`${environment.apiUrl}/items/item-100`)
+      .flush({ ...baseItem, canViewContact: true });
+    publicFixture.detectChanges();
+
+    const publicComp = publicFixture.componentInstance;
+    const publicEl = publicFixture.nativeElement as HTMLElement;
+    expect(publicComp.isAdminView).toBe(false);
+    expect(publicComp.canSubmitClaim()).toBe(false);
+    expect(publicComp.canManageItem()).toBe(false);
+    expect(publicEl.textContent).not.toContain('Submit Verification Claim');
+    expect(publicEl.querySelector('a[href="/admin/items/item-100"]')).toBeTruthy();
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [ItemDetail],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of(convertToParamMap({ id: 'item-100' })),
+            snapshot: {
+              paramMap: convertToParamMap({ id: 'item-100' }),
+              data: { adminView: true },
+            },
+          },
+        },
+      ],
+    });
+    httpTesting = TestBed.inject(HttpTestingController);
+    tokenStorage = TestBed.inject(TokenStorage);
+    toastService = TestBed.inject(ToastService);
+    router = TestBed.inject(Router);
+    tokenStorage.setSession('adm-jwt', adminUser);
+
+    const adminFixture = TestBed.createComponent(ItemDetail);
+    adminFixture.detectChanges();
+    httpTesting
+      .expectOne(`${environment.apiUrl}/items/item-100`)
+      .flush(baseItem);
+    adminFixture.detectChanges();
+
+    const adminComp = adminFixture.componentInstance;
+    const adminEl = adminFixture.nativeElement as HTMLElement;
+    expect(adminComp.isAdminView).toBe(true);
+    expect(adminComp.canManageItem()).toBe(true);
+    expect(adminComp.canSubmitClaim()).toBe(false);
+    expect(adminEl.textContent).toContain('Back to Items Moderation');
+    expect(adminEl.querySelector('a[href="/admin/items"]')).toBeTruthy();
+
+    const navSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    adminComp.runMatching();
+    httpTesting
+      .expectOne(`${environment.apiUrl}/matching/item/item-100/run`)
+      .flush({ generatedCount: 1, matches: [] });
+    expect(navSpy).toHaveBeenCalledWith(['/admin/matches'], {
+      queryParams: { itemId: 'item-100' },
+    });
+  });
 });

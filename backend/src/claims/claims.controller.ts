@@ -25,7 +25,7 @@ import {
 import { UserRole } from '../users/enums/user-role.enum.js';
 
 @Controller('claims')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ClaimsController {
   constructor(
     @Inject(ClaimsService)
@@ -33,6 +33,7 @@ export class ClaimsController {
   ) {}
 
   @Post()
+  @Roles(UserRole.USER)
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateClaimDto,
@@ -41,6 +42,7 @@ export class ClaimsController {
   }
 
   @Get('my')
+  @Roles(UserRole.USER)
   findMyClaims(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: QueryClaimsDto,
@@ -57,6 +59,7 @@ export class ClaimsController {
   }
 
   @Patch(':id/finder-review')
+  @Roles(UserRole.USER)
   finderReview(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -66,7 +69,6 @@ export class ClaimsController {
   }
 
   @Patch(':id/admin-review')
-  @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   adminReview(
     @Param('id', ParseUUIDPipe) id: string,

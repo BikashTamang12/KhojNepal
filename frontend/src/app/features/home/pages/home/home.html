@@ -20,17 +20,31 @@
         </p>
 
         <div class="hero-actions">
-          <a routerLink="/items/report-lost" class="btn-primary group">
-            <span>Report Lost Item</span>
-            <app-icon
-              name="arrow-right"
-              sizeClass="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
-            />
-          </a>
+          @if (authService.isAdmin()) {
+            <a routerLink="/admin" class="btn-primary group">
+              <span>Open Admin Console</span>
+              <app-icon
+                name="arrow-right"
+                sizeClass="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+              />
+            </a>
 
-          <a routerLink="/items/report-found" class="btn-outline">
-            Report Found Item
-          </a>
+            <a routerLink="/items" class="btn-outline">
+              Browse Reports
+            </a>
+          } @else {
+            <a routerLink="/items/report-lost" class="btn-primary group">
+              <span>Report Lost Item</span>
+              <app-icon
+                name="arrow-right"
+                sizeClass="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+              />
+            </a>
+
+            <a routerLink="/items/report-found" class="btn-outline">
+              Report Found Item
+            </a>
+          }
         </div>
 
         <div class="hero-trust">
@@ -201,14 +215,25 @@
           (retry)="loadRecentItems()"
         />
       } @else if (recentItems().length === 0) {
-        <app-empty-state
-          icon="package"
-          title="No reports submitted yet"
-          description="Be the first to post a lost or found item report across Nepal."
-          actionLabel="Report Lost Item"
-          actionRouterLink="/items/report-lost"
-          [compact]="true"
-        />
+        @if (authService.isAdmin()) {
+          <app-empty-state
+            icon="package"
+            title="No reports submitted yet"
+            description="Community lost and found reports will appear here once submitted by members."
+            actionLabel="Moderate Items"
+            actionRouterLink="/admin/items"
+            [compact]="true"
+          />
+        } @else {
+          <app-empty-state
+            icon="package"
+            title="No reports submitted yet"
+            description="Be the first to post a lost or found item report across Nepal."
+            actionLabel="Report Lost Item"
+            actionRouterLink="/items/report-lost"
+            [compact]="true"
+          />
+        }
       } @else {
         <div class="featured-grid">
           @for (item of recentItems(); track item.id) {
@@ -231,25 +256,46 @@
   <!-- Call to Action -->
   <section class="cta-section">
     <div class="cta-container">
-      <div>
-        <span class="section-eyebrow">BE PART OF THE COMMUNITY</span>
-        <h2>Found something that isn't yours?</h2>
-        <p>
-          Your small action could make someone's day.
-          Report the item and help return it to its rightful owner.
-        </p>
-      </div>
+      @if (authService.isAdmin()) {
+        <div>
+          <span class="section-eyebrow">ADMINISTRATION</span>
+          <h2>Review community claims &amp; reports</h2>
+          <p>
+            Manage reported items, verify ownership claims, and oversee system categories from your admin console.
+          </p>
+        </div>
 
-      <a
-        routerLink="/items/report-found"
-        class="cta-button inline-flex items-center justify-center gap-2 group"
-      >
-        <span>Report a Found Item</span>
-        <app-icon
-          name="arrow-right"
-          sizeClass="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
-        />
-      </a>
+        <a
+          routerLink="/admin"
+          class="cta-button inline-flex items-center justify-center gap-2 group"
+        >
+          <span>Open Admin Console</span>
+          <app-icon
+            name="arrow-right"
+            sizeClass="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+          />
+        </a>
+      } @else {
+        <div>
+          <span class="section-eyebrow">BE PART OF THE COMMUNITY</span>
+          <h2>Found something that isn't yours?</h2>
+          <p>
+            Your small action could make someone's day.
+            Report the item and help return it to its rightful owner.
+          </p>
+        </div>
+
+        <a
+          routerLink="/items/report-found"
+          class="cta-button inline-flex items-center justify-center gap-2 group"
+        >
+          <span>Report a Found Item</span>
+          <app-icon
+            name="arrow-right"
+            sizeClass="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+          />
+        </a>
+      }
     </div>
   </section>
 </div>

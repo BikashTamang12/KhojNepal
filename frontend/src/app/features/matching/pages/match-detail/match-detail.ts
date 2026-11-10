@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   type Item,
   type ItemMatch,
@@ -39,9 +39,17 @@ import { MatchingService } from '../../services/matching';
 })
 export class MatchDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly matchingService = inject(MatchingService);
-  private readonly authService = inject(AuthService);
+  readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+
+  get isAdminView(): boolean {
+    return (
+      Boolean(this.route.snapshot?.data?.['adminView']) ||
+      this.router.url.startsWith('/admin')
+    );
+  }
 
   readonly match = signal<ItemMatch | null>(null);
   readonly loading = signal(true);
@@ -51,14 +59,14 @@ export class MatchDetail implements OnInit {
 
   readonly counterpartItem = computed(() => {
     const current = this.match();
-    const userId = this.authService.user()?.id;
-    if (!current || !userId) {
+    const user = this.authService.user();
+    if (!current || !user || user.role === 'ADMIN') {
       return null;
     }
-    if (current.lostItem?.userId === userId) {
+    if (current.lostItem?.userId === user.id) {
       return current.foundItem ?? null;
     }
-    if (current.foundItem?.userId === userId) {
+    if (current.foundItem?.userId === user.id) {
       return current.lostItem ?? null;
     }
     return current.foundItem ?? current.lostItem ?? null;

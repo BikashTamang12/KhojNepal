@@ -31,7 +31,7 @@ describe('WorkspaceLayout', () => {
       id: 'u-1',
       fullName: 'Nabin Karki',
       email: 'nabin@example.com',
-      role: 'ADMIN',
+      role: 'USER',
       isActive: true,
       isVerified: true,
       createdAt: '2026-01-01T00:00:00Z',
@@ -44,7 +44,7 @@ describe('WorkspaceLayout', () => {
     localStorage.clear();
   });
 
-  it('renders user navigation links, unread badge, admin link, mobile drawer, and theme toggle', () => {
+  it('renders user navigation links without admin link, unread badge, mobile drawer, and theme toggle', () => {
     const fixture = TestBed.createComponent(WorkspaceLayout);
     fixture.detectChanges();
 
@@ -58,7 +58,7 @@ describe('WorkspaceLayout', () => {
     expect(el.querySelector('a[href="/items/my"]')).toBeTruthy();
     expect(el.querySelector('a[href="/matching"]')).toBeTruthy();
     expect(el.querySelector('a[href="/claims"]')).toBeTruthy();
-    expect(el.querySelector('a[href="/admin"]')).toBeTruthy();
+    expect(el.querySelector('a[href="/admin"]')).toBeNull();
     expect(el.querySelector('.sidebar-count')?.textContent?.trim()).toBe('6');
 
     const menuBtn = el.querySelector<HTMLButtonElement>('.mobile-drawer-btn');

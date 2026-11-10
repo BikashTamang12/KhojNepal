@@ -51,6 +51,8 @@ describe('AdminLayout', () => {
     expect(el.querySelector('a[href="/admin/users"]')).toBeTruthy();
     expect(el.querySelector('a[href="/admin/claims"]')).toBeTruthy();
     expect(el.querySelector('a[href="/admin/categories"]')).toBeTruthy();
+    expect(el.querySelector('a[href="/items/my"]')).toBeNull();
+    expect(el.querySelector('a[href="/"]')).toBeTruthy();
 
     el.querySelector<HTMLButtonElement>('.mobile-drawer-btn')?.click();
     fixture.detectChanges();

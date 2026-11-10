@@ -21,10 +21,13 @@ import { UpdateItemStatusDto } from './dto/update-item-status.dto.js';
 import { QueryItemsDto } from './dto/query-items.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 import {
   CurrentUser,
   type AuthenticatedUser,
 } from '../common/decorators/current-user.decorator.js';
+import { UserRole } from '../users/enums/user-role.enum.js';
 import {
   createItemImageMulterOptions,
   MAX_ITEM_IMAGES,
@@ -47,7 +50,8 @@ export class ItemsController {
   }
 
   @Get('my')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER)
   findMyItems(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: QueryItemsDto,
@@ -65,7 +69,8 @@ export class ItemsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER)
   @UseInterceptors(
     FilesInterceptor('images', MAX_ITEM_IMAGES, createItemImageMulterOptions()),
   )

@@ -71,5 +71,50 @@ describe('AdminDashboard Page', () => {
     expect(el.textContent).toContain('9 Categories');
     expect(el.textContent).toContain('No claims currently awaiting admin review');
     expect(el.textContent).toContain('No recent item reports recorded');
+
+    fixture.componentInstance.loadDashboard();
+    httpTesting.expectOne(`${environment.apiUrl}/admin/dashboard`).flush({
+      summary: {
+        users: { total: 42, active: 40, verified: 35 },
+        items: {
+          total: 80,
+          lost: 45,
+          found: 35,
+          open: 30,
+          claimPending: 8,
+          resolved: 38,
+          closed: 4,
+        },
+        claims: { total: 18, pending: 6, approved: 9, rejected: 3 },
+        matches: { total: 22, pending: 5, accepted: 10 },
+        handovers: { total: 9, confirmed: 7 },
+        taxonomy: {
+          categoriesTotal: 10,
+          categoriesActive: 9,
+          locationsTotal: 35,
+        },
+      },
+      recentItems: [
+        {
+          id: 'item-adm-1',
+          title: 'Admin Inspected Bag',
+          reportType: 'LOST',
+          status: 'OPEN',
+          createdAt: '2026-05-01T00:00:00Z',
+        },
+      ],
+      pendingClaimQueue: [
+        {
+          id: 'claim-adm-1',
+          finderStatus: 'PENDING',
+          item: { title: 'Admin Inspected Bag' },
+          claimant: { fullName: 'Member' },
+        },
+      ],
+    });
+    fixture.detectChanges();
+
+    expect(el.querySelector('a[href="/admin/claims/claim-adm-1"]')).toBeTruthy();
+    expect(el.querySelector('a[href="/admin/items/item-adm-1"]')).toBeTruthy();
   });
 });

@@ -75,7 +75,7 @@ describe('PublicLayout', () => {
     expect(el.querySelector('#public-mobile-nav')).toBeNull();
   });
 
-  it('renders guest actions when signed out and workspace/admin links + unread badge when authenticated', () => {
+  it('renders guest actions when signed out, workspace/unread badge for USER, and Admin Console only for ADMIN', () => {
     const fixture = TestBed.createComponent(PublicLayout);
     fixture.detectChanges();
 
@@ -87,7 +87,7 @@ describe('PublicLayout', () => {
       id: 'user-1',
       fullName: 'Sita Sharma',
       email: 'sita@example.com',
-      role: 'ADMIN',
+      role: 'USER',
       isActive: true,
       isVerified: true,
       createdAt: '2026-01-01T00:00:00Z',
@@ -101,8 +101,28 @@ describe('PublicLayout', () => {
     fixture.detectChanges();
 
     expect(el.querySelector('a[href="/items/my"]')).toBeTruthy();
-    expect(el.querySelector('a[href="/admin"]')).toBeTruthy();
+    expect(el.querySelector('a[href="/profile"]')).toBeTruthy();
+    expect(el.querySelector('a[href="/admin"]')).toBeNull();
     expect(el.querySelector('.unread-dot')?.textContent?.trim()).toBe('3');
     expect(el.querySelector('.logout-btn')).toBeTruthy();
+
+    tokenStorage.setSession('jwt-admin', {
+      id: 'admin-1',
+      fullName: 'Portal Admin',
+      email: 'admin@gmail.com',
+      role: 'ADMIN',
+      isActive: true,
+      isVerified: true,
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    });
+    fixture.detectChanges();
+
+    httpTesting.expectNone(`${environment.apiUrl}/notifications/unread-count`);
+    expect(el.querySelector('a[href="/admin"]')).toBeTruthy();
+    expect(el.querySelector('a[href="/items/my"]')).toBeNull();
+    expect(el.querySelector('a[href="/items/report-lost"]')).toBeNull();
+    expect(el.querySelector('a[href="/notifications"]')).toBeNull();
+    expect(el.querySelector('a[href="/profile"]')).toBeNull();
   });
 });

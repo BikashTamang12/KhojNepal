@@ -88,17 +88,36 @@ export class Login {
     if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
       return fallback;
     }
+
+    const pathOnly = returnUrl.split(/[?#]/)[0];
+    if (pathOnly === '/login' || pathOnly === '/register') {
+      return fallback;
+    }
     if (
-      returnUrl === '/login' ||
-      returnUrl.startsWith('/login?') ||
-      returnUrl === '/register' ||
-      returnUrl.startsWith('/register?')
+      role !== 'ADMIN' &&
+      (pathOnly === '/admin' || pathOnly.startsWith('/admin/'))
     ) {
       return fallback;
     }
-    if (role !== 'ADMIN' && (returnUrl === '/admin' || returnUrl.startsWith('/admin/'))) {
+
+    const userWorkspacePrefixes = [
+      '/items/my',
+      '/items/report-lost',
+      '/items/report-found',
+      '/matching',
+      '/claims',
+      '/notifications',
+      '/profile',
+    ];
+    if (
+      role === 'ADMIN' &&
+      userWorkspacePrefixes.some(
+        (prefix) => pathOnly === prefix || pathOnly.startsWith(`${prefix}/`),
+      )
+    ) {
       return fallback;
     }
+
     return returnUrl;
   }
 }

@@ -11,12 +11,21 @@
       >
         Browse Reports
       </a>
-      <a
-        routerLink="/items/report-lost"
-        class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
-      >
-        Report Lost Item
-      </a>
+      @if (authService.isAdmin()) {
+        <a
+          routerLink="/admin"
+          class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+        >
+          Open Admin Console
+        </a>
+      } @else {
+        <a
+          routerLink="/items/report-lost"
+          class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+        >
+          Report Lost Item
+        </a>
+      }
     </div>
   </app-page-header>
 
@@ -33,25 +42,48 @@
   </div>
 
   <div class="surface-card-padded flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div>
-      <h2 class="text-xl mb-1">Ready to recover or return an item?</h2>
-      <p class="text-secondary m-0">
-        Create a free account to post reports, receive automated match alerts, and manage verified claims.
-      </p>
-    </div>
-    <div class="flex flex-wrap gap-3 shrink-0">
-      <a
-        routerLink="/items/report-found"
-        class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
-      >
-        Report Found Item
-      </a>
-      <a
-        routerLink="/register"
-        class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
-      >
-        Create Account
-      </a>
-    </div>
+    @if (authService.isAdmin()) {
+      <div>
+        <h2 class="text-xl mb-1">Platform Moderation &amp; Verification</h2>
+        <p class="text-secondary m-0">
+          Review reported items, verify ownership claims, and oversee system categories from the Admin Console.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <a
+          routerLink="/items"
+          class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+        >
+          Browse Items
+        </a>
+        <a
+          routerLink="/admin"
+          class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+        >
+          Admin Console
+        </a>
+      </div>
+    } @else {
+      <div>
+        <h2 class="text-xl mb-1">Ready to recover or return an item?</h2>
+        <p class="text-secondary m-0">
+          Create a free account to post reports, receive automated match alerts, and manage verified claims.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <a
+          routerLink="/items/report-found"
+          class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg border border-[var(--color-border)] font-semibold hover:bg-[var(--color-hover)]"
+        >
+          Report Found Item
+        </a>
+        <a
+          routerLink="/register"
+          class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold"
+        >
+          Create Account
+        </a>
+      </div>
+    }
   </div>
 </section>

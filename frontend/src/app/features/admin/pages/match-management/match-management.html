@@ -4,7 +4,7 @@
   description="Inspect system-generated similarity pairs across all lost and found reports."
 />
 
-<div class="surface-card-padded mb-6 flex flex-wrap gap-4">
+<div class="surface-card-padded mb-6 flex flex-wrap items-end justify-between gap-4">
   <div class="field-group max-w-[220px]">
     <label class="field-label" for="admin-match-status">Match Status</label>
     <select id="admin-match-status" class="form-select" [(ngModel)]="status" (change)="onFilterChange()">
@@ -14,6 +14,21 @@
       <option value="REJECTED">Dismissed</option>
     </select>
   </div>
+
+  @if (itemId) {
+    <div class="flex items-center gap-2 text-xs">
+      <span class="px-2.5 py-1 rounded-full bg-[var(--color-primary-soft)] text-[var(--color-primary)] font-semibold">
+        Filtered by item report
+      </span>
+      <button
+        type="button"
+        class="font-semibold text-[var(--color-primary)] hover:underline bg-transparent border-0 p-0 cursor-pointer"
+        (click)="clearItemFilter()"
+      >
+        Show All Matches
+      </button>
+    </div>
+  }
 </div>
 
 @if (loading()) {
@@ -47,12 +62,12 @@
         @for (m of matches(); track m.id) {
           <tr>
             <td>
-              <a [routerLink]="['/items', m.lostItemId]" class="font-semibold hover:text-[var(--color-primary)]">
+              <a [routerLink]="['/admin/items', m.lostItemId]" class="font-semibold hover:text-[var(--color-primary)]">
                 {{ m.lostItem?.title || m.lostItemId }}
               </a>
             </td>
             <td>
-              <a [routerLink]="['/items', m.foundItemId]" class="font-semibold hover:text-[var(--color-primary)]">
+              <a [routerLink]="['/admin/items', m.foundItemId]" class="font-semibold hover:text-[var(--color-primary)]">
                 {{ m.foundItem?.title || m.foundItemId }}
               </a>
             </td>
@@ -64,7 +79,7 @@
               <app-badge [variant]="badgeVariant(m.status)" [label]="formatLabel(m.status)" size="sm" />
             </td>
             <td>
-              <a [routerLink]="['/matching', m.id]" class="font-semibold text-[var(--color-primary)] hover:underline">
+              <a [routerLink]="['/admin/matches', m.id]" class="font-semibold text-[var(--color-primary)] hover:underline">
                 Details
               </a>
             </td>

@@ -21,11 +21,12 @@
         <a routerLink="/about" routerLinkActive="active">About</a>
 
         @if (authService.isAuthenticated()) {
-          <a routerLink="/items/report-lost" routerLinkActive="active">Report Lost</a>
-          <a routerLink="/items/report-found" routerLinkActive="active">Report Found</a>
-          <a routerLink="/items/my" routerLinkActive="active">Workspace</a>
           @if (authService.isAdmin()) {
-            <a routerLink="/admin" routerLinkActive="active">Admin</a>
+            <a routerLink="/admin" routerLinkActive="active">Admin Console</a>
+          } @else {
+            <a routerLink="/items/report-lost" routerLinkActive="active">Report Lost</a>
+            <a routerLink="/items/report-found" routerLinkActive="active">Report Found</a>
+            <a routerLink="/items/my" routerLinkActive="active">Workspace</a>
           }
         }
       </nav>
@@ -48,7 +49,7 @@
           }
         </button>
 
-        @if (authService.isAuthenticated()) {
+        @if (authService.isAuthenticated() && !authService.isAdmin()) {
           <a
             routerLink="/notifications"
             class="icon-nav-btn touch-target relative"
@@ -63,10 +64,17 @@
 
         <div class="desktop-auth-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/profile" class="login-link inline-flex items-center gap-1.5">
-              <app-icon name="user" sizeClass="w-4 h-4" />
-              <span>{{ authService.user()?.fullName }}</span>
-            </a>
+            @if (authService.isAdmin()) {
+              <a routerLink="/admin" class="login-link inline-flex items-center gap-1.5">
+                <app-icon name="shield" sizeClass="w-4 h-4" />
+                <span>{{ authService.user()?.fullName }}</span>
+              </a>
+            } @else {
+              <a routerLink="/profile" class="login-link inline-flex items-center gap-1.5">
+                <app-icon name="user" sizeClass="w-4 h-4" />
+                <span>{{ authService.user()?.fullName }}</span>
+              </a>
+            }
             <button type="button" class="logout-btn" (click)="logout()">
               <app-icon name="logout" sizeClass="w-4 h-4" />
               <span>Logout</span>
@@ -121,33 +129,34 @@
           </a>
 
           @if (authService.isAuthenticated()) {
-            <a routerLink="/items/my" routerLinkActive="active" (click)="closeMobileMenu()">
-              My Workspace
-            </a>
-            <a routerLink="/items/report-lost" routerLinkActive="active" (click)="closeMobileMenu()">
-              Report Lost
-            </a>
-            <a routerLink="/items/report-found" routerLinkActive="active" (click)="closeMobileMenu()">
-              Report Found
-            </a>
-            <a routerLink="/matching" routerLinkActive="active" (click)="closeMobileMenu()">
-              Smart Matches
-            </a>
-            <a routerLink="/claims" routerLinkActive="active" (click)="closeMobileMenu()">
-              Claims &amp; Handovers
-            </a>
-            <a routerLink="/notifications" routerLinkActive="active" (click)="closeMobileMenu()">
-              Notifications
-              @if (notificationService.unreadCount() > 0) {
-                <span class="mobile-badge">{{ notificationService.unreadCount() }}</span>
-              }
-            </a>
-            <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">
-              Profile
-            </a>
             @if (authService.isAdmin()) {
               <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">
                 Admin Console
+              </a>
+            } @else {
+              <a routerLink="/items/my" routerLinkActive="active" (click)="closeMobileMenu()">
+                My Workspace
+              </a>
+              <a routerLink="/items/report-lost" routerLinkActive="active" (click)="closeMobileMenu()">
+                Report Lost
+              </a>
+              <a routerLink="/items/report-found" routerLinkActive="active" (click)="closeMobileMenu()">
+                Report Found
+              </a>
+              <a routerLink="/matching" routerLinkActive="active" (click)="closeMobileMenu()">
+                Smart Matches
+              </a>
+              <a routerLink="/claims" routerLinkActive="active" (click)="closeMobileMenu()">
+                Claims &amp; Handovers
+              </a>
+              <a routerLink="/notifications" routerLinkActive="active" (click)="closeMobileMenu()">
+                Notifications
+                @if (notificationService.unreadCount() > 0) {
+                  <span class="mobile-badge">{{ notificationService.unreadCount() }}</span>
+                }
+              </a>
+              <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">
+                Profile
               </a>
             }
           }

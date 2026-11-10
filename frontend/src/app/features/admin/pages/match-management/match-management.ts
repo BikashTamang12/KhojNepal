@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   type ItemMatch,
   type MatchStatus,
@@ -34,6 +34,8 @@ import { AdminService } from '../../services/admin';
 })
 export class MatchManagement implements OnInit {
   private readonly adminService = inject(AdminService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly matches = signal<ItemMatch[]>([]);
   readonly total = signal(0);
@@ -41,11 +43,16 @@ export class MatchManagement implements OnInit {
   readonly error = signal<string | null>(null);
 
   status: '' | MatchStatus = '';
+  itemId = '';
   page = 1;
   limit = 12;
 
   ngOnInit(): void {
-    this.loadMatches();
+    this.route.queryParamMap.subscribe((params) => {
+      this.itemId = params.get('itemId') ?? '';
+      this.page = 1;
+      this.loadMatches();
+    });
   }
 
   loadMatches(): void {
@@ -57,6 +64,7 @@ export class MatchManagement implements OnInit {
         page: this.page,
         limit: this.limit,
         status: this.status || undefined,
+        itemId: this.itemId || undefined,
       })
       .subscribe({
         next: (res) => {
@@ -69,6 +77,14 @@ export class MatchManagement implements OnInit {
           this.loading.set(false);
         },
       });
+  }
+
+  clearItemFilter(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { itemId: null },
+      queryParamsHandling: 'merge',
+    });
   }
 
   onFilterChange(): void {
